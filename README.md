@@ -41,26 +41,34 @@ Run the `process_article_metadata.sh` script in order to process the `PMIDs.tsv`
 process_article_metadata.sh PMIDs.tsv > fill_article_metadata.sql
 ```
 
-# 2.2 Tables `signature`, `drug` and `drug_signature_interaction`
+## 2.2 Tables `signature`, `drug` and `drug_signature_interaction`
 Run the `process_signatures.sh` script in order to process the `Dreimt_DB_with_PubMedIDs.tsv` created in step 1.1 and obtain the MySQL `INSERT` data queries:
 
 ```bash
 process_signatures.sh Dreimt_DB_with_PubMedIDs.tsv > fill_signatures.sql
 ```
 
-# 2.3 Table `signature_gene`
-Run the `process_gmt.sh` script in order to process the `signatures_genes.gmt` file and obtain the MySQL  `INSERT` data queries:
+## 2.3 Table `signature_updown_genes`
+Run the `process_gmt_signatures_updown.sh` script in order to process the `signatures_updown_genes.gmt` file and obtain the MySQL `INSERT` data queries:
 
 ```bash
-process_gmt.sh signatures_genes.gmt > fill_signatures_genes.sql
+process_gmt_signatures_updown.sh signatures_updown_genes.gmt > fill_signatures_updown_genes.sql
 ```
 
-## 2.4 Populate the database
+## 2.4 Table `signature_geneset_genes`
+Run the `process_gmt_signatures_geneset.sh` script in order to process the `signatures_geneset_genes.gmt` file and obtain the MySQL `INSERT` data queries:
+
+```bash
+process_gmt_signatures_geneset.sh signatures_geneset_genes.gmt > fill_signatures_geneset_genes.sql
+```
+
+## 2.5 Populate the database
 Finally, run the following command to populate the `dreimt` database, which must have been created previously:
 ```bash
 sudo mysql dreimt < fill_article_metadata.sql
 sudo mysql dreimt < fill_signatures.sql
-sudo mysql dreimt < fill_signatures_genes.sql
+sudo mysql dreimt < fill_signatures_updown_genes.sql
+sudo mysql dreimt < fill_signatures_geneset_genes.sql
 ```
 
 # 3. Additional utilities

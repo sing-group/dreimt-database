@@ -12,10 +12,10 @@ cat $1 | awk -F'\t' '
 
         for (i=3; i<=NF; i++) {
             if (geneType == "UP"){
-                printf "INSERT INTO signature_gene (gene, signature, type) VALUES (\"%s\", \"%s\", \"UP\");\n", $i, $signatureName;
+                printf "INSERT INTO signature_updown_genes (gene, signature, type) VALUES (\"%s\", \"%s\", \"UP\");\n", $i, $signatureName;
             } else {
                 
-                printf "INSERT INTO signature_gene (gene, signature, type) VALUES (\"%s\", \"%s\", \"DOWN\");\n", $i, $signatureName;
+                printf "INSERT INTO signature_updown_genes (gene, signature, type) VALUES (\"%s\", \"%s\", \"DOWN\");\n", $i, $signatureName;
             }
         }
     }
