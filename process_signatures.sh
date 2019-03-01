@@ -1,27 +1,62 @@
 #!/bin/bash
 
 cat $1 | awk -F'\t' '
-    NR>1 {
-        gsub(" ", "_", $9);
-        printf "INSERT IGNORE INTO drug (commonName, sourceName, sourceDb) VALUES (\"%s\", \"%s\", \"%s\");\n", $10, $11, $12;
-        if($16 == "NA") {
-            printf "INSERT IGNORE INTO signature (signatureName, sourceDb, signatureType, experimentalDesign, organism, disease) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $3, $4, toupper($9), $7, $8;
-        } else {
-            printf "INSERT IGNORE INTO signature (signatureName, article_pubmedId, sourceDb, signatureType, experimentalDesign, organism, disease) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $16, $3, $4, toupper($9), $7, $8;
-        }
+	NR>1 {
+		# Accommodate experimental design column (field 11) to DB
+		gsub(" ", "_", $11);
 
-        # Split cellTypeA column ($5) to insert each value in the corresponding table
-        cellTypeACount = split($5, cellTypeA, "|");
-        for(i=0; ++i <= cellTypeACount;) {
-            printf "INSERT IGNORE INTO signature_cell_type_a (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeA[i];
-        }
+		# Fix signature name column (field 1)
+		gsub("_UP$|_sig$", "", $1);
 
-        # Split cellTypeB column ($6) to insert each value in the corresponding table
-        cellTypeBCount = split($6, cellTypeB, "|");
-        for(i=0; ++i <= cellTypeBCount;) {
-            printf "INSERT IGNORE INTO signature_cell_type_b (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeB[i];
-        }
+		# Process only signatures with a signature type (field 12)
+		if($12 != "") {
+			if($12 == "Gene set") {
+				dbSignatureType="GENESET";
+			} else {
+				dbSignatureType="UPDOWN";
+			}
 
-        printf "INSERT INTO drug_signature_interaction (drug_sourceName, drug_sourceDb, signature, tes, pValue, fdr) VALUES (\"%s\", \"%s\", \"%s\", %s, %s, %s);\n", $11, $12, $1, $13, $14, $15;
-    }
+			if($11 == "") {
+				dbExperimentalDesign = "UNKNOWN";
+			} else {
+				dbExperimentalDesign = toupper($11);
+			}
+
+			if($14 == "NA") {
+				printf "INSERT INTO signature (signatureName, sourceDb, signatureType, experimentalDesign, organism) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $2, dbSignatureType, dbExperimentalDesign, $5;
+			} else {
+				printf "INSERT INTO signature (signatureName, article_pubmedId, sourceDb, signatureType, experimentalDesign, organism) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $14, $2, dbSignatureType, dbExperimentalDesign, $5;
+			}
+
+			# Split cellTypeA column ($6) to insert each value in the corresponding table
+			cellTypeACount = split($6, cellTypeA, "|");
+			for(i=0; ++i <= cellTypeACount;) {
+				printf "INSERT INTO signature_cell_type_a (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeA[i];
+			}
+
+			# Split cellSubTypeA column ($7) to insert each value in the corresponding table
+			cellSubTypeACount = split($6, cellSubTypeA, "|");
+			for(i=0; ++i <= cellSubTypeACount;) {
+				printf "INSERT INTO signature_cell_subtype_a (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeA[i];
+			}
+
+			# Split cellTypeB column ($8) to insert each value in the corresponding table
+			cellTypeBCount = split($8, cellTypeB, "|");
+			for(i=0; ++i <= cellTypeBCount;) {
+				printf "INSERT INTO signature_cell_type_b (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeB[i];
+			}
+
+			# Split cellSubTypeB column ($9) to insert each value in the corresponding table
+			cellSubTypeBCount = split($9, cellSubTypeB, "|");
+			for(i=0; ++i <= cellSubTypeBCount;) {
+				printf "INSERT INTO signature_cell_subtype_b (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeB[i];
+			}
+
+			# Split disease column ($10) to insert each value in the corresponding table
+			diseaseCount = split($10, disease, "|");
+			for(i=0; ++i <= diseaseCount;) {
+				printf "INSERT INTO signature_disease (signatureName, disease) VALUES (\"%s\", \"%s\");\n", $1, disease[i];
+			}
+		}
+	}
 ';
