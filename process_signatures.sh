@@ -31,31 +31,41 @@ cat $1 | awk -F'\t' '
 			# Split cellTypeA column ($6) to insert each value in the corresponding table
 			cellTypeACount = split($6, cellTypeA, "|");
 			for(i=0; ++i <= cellTypeACount;) {
-				printf "INSERT INTO signature_cell_type_a (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeA[i];
+				if(cellTypeA[i] != "") {
+					printf "INSERT INTO signature_cell_type_a (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeA[i];
+				}
 			}
 
 			# Split cellSubTypeA column ($7) to insert each value in the corresponding table
 			cellSubTypeACount = split($6, cellSubTypeA, "|");
 			for(i=0; ++i <= cellSubTypeACount;) {
-				printf "INSERT INTO signature_cell_subtype_a (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeA[i];
+				if(cellSubTypeA[i] != "") {
+					printf "INSERT INTO signature_cell_subtype_a (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeA[i];
+				}
 			}
 
 			# Split cellTypeB column ($8) to insert each value in the corresponding table
 			cellTypeBCount = split($8, cellTypeB, "|");
 			for(i=0; ++i <= cellTypeBCount;) {
-				printf "INSERT INTO signature_cell_type_b (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeB[i];
+				if(cellTypeB[i] != "") {
+					printf "INSERT INTO signature_cell_type_b (signatureName, cellType) VALUES (\"%s\", \"%s\");\n", $1, cellTypeB[i];
+				}
 			}
 
 			# Split cellSubTypeB column ($9) to insert each value in the corresponding table
 			cellSubTypeBCount = split($9, cellSubTypeB, "|");
 			for(i=0; ++i <= cellSubTypeBCount;) {
-				printf "INSERT INTO signature_cell_subtype_b (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeB[i];
+				if(cellSubTypeB[i] != "") {
+					printf "INSERT INTO signature_cell_subtype_b (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeB[i];
+				}
 			}
 
 			# Split disease column ($10) to insert each value in the corresponding table
 			diseaseCount = split($10, disease, "|");
 			for(i=0; ++i <= diseaseCount;) {
-				printf "INSERT INTO signature_disease (signatureName, disease) VALUES (\"%s\", \"%s\");\n", $1, disease[i];
+				if(disease[i] != "") {
+					printf "INSERT INTO signature_disease (signatureName, disease) VALUES (\"%s\", \"%s\");\n", $1, disease[i];
+				}
 			}
 		}
 	}
