@@ -2,16 +2,21 @@
 
 cat $1 | awk -F'\t' '
 	BEGIN { 
-		printf "INSERT IGNORE INTO genes (gene, universe) VALUES" 
+		printf "INSERT IGNORE INTO genes (gene, universe) VALUES";
+		FIRST = 0;
 	}
 	{
-		for (i=3; i<=NF; i++) {
-			if(NR>1 && i==3) {
-				printf ",";
-			}
-			printf "\n  (\"%s\", \"F\")", $i;
-			if(i<NF) {
-				printf ",";
+		if (match($1,"_sig$")){
+			for (i=3; i<=NF; i++) {
+				if(FIRST>0 && i==3) {
+					printf ",";
+				} else {
+					FIRST = 1;
+				}
+				printf "\n  (\"%s\", \"F\")", $i;
+				if(i<NF) {
+					printf ",";
+				}
 			}
 		}
 	}
@@ -20,25 +25,24 @@ cat $1 | awk -F'\t' '
 
 cat $1 | awk -F'\t' '
 	BEGIN { 
-		printf "INSERT INTO signature_geneset_genes (gene, signature) VALUES" 
+		printf "INSERT INTO signature_geneset_genes (gene, signature) VALUES";
+		FIRST = 0;
 	}
 	{
 		# Fix signature name column (field 1)
-		if (match($1,"_UP")){
-			gsub("_UP$","",$1);
-		} else if (match($1,"_DN")){
-			gsub("_DN$","",$1);
-		} else {
+		if (match($1,"_sig$")){
 			gsub("_sig$","",$1);
-		}
-		
-		for (i=3; i<=NF; i++) {
-			if(NR>1 && i==3) {
-				printf ",";
-			}
-			printf "\n (\"%s\", \"%s\")", $i, $1;
-			if(i<NF) {
-				printf ",";
+
+			for (i=3; i<=NF; i++) {
+				if(FIRST>0 && i==3) {
+					printf ",";
+				} else {
+					FIRST = 1;
+				}
+				printf "\n (\"%s\", \"%s\")", $i, $1;
+				if(i<NF) {
+					printf ",";
+				}
 			}
 		}
 	}
