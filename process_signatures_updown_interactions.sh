@@ -3,13 +3,24 @@
 # Input file: tab-delimited, without header line, four columns (1: drugId, 2: signature name, 3: tau, 4: UP FDR, 5: DOWN FDR)
 
 cat $1 | awk -F'\t' '
-	BEGIN { 
-		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, downFdr, interactionType) VALUES"
+	BEGIN {
+		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, downFdr, interactionType) VALUES";
+		PRINT_COMMA = 0;
 	}
-	NR>1 {
-		printf(",");
+	(NR % 4000000) == 0 {
+		if(NR > 1) {
+			printf ";\n\n";
+		}
+		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, downFdr, interactionType) VALUES";
+		PRINT_COMMA = 0;
 	}
 	{
+		if(PRINT_COMMA == 1) {
+			printf(",");
+		} else {
+			PRINT_COMMA = 1;
+		}
+
 		# Extract drugId (field 1)
 		gsub("sig_","",$1);
 

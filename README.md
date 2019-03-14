@@ -151,6 +151,9 @@ sudo mysql dreimt < generated-data/sql/fill_signatures_updown_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_geneset_genes.sql
 ```
 
+Or generate a compressed file containing all of them:
+cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz
+
 # 3. Additional utilities
 
 ## 3.1 Find the possible values of experimental design
