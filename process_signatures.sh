@@ -37,7 +37,7 @@ cat $1 | awk -F'\t' '
 			}
 
 			# Split cellSubTypeA column ($7) to insert each value in the corresponding table
-			cellSubTypeACount = split($6, cellSubTypeA, "|");
+			cellSubTypeACount = split($7, cellSubTypeA, "|");
 			for(i=0; ++i <= cellSubTypeACount;) {
 				if(cellSubTypeA[i] != "") {
 					printf "INSERT INTO signature_cell_subtype_a (signatureName, cellSubType) VALUES (\"%s\", \"%s\");\n", $1, cellSubTypeA[i];
