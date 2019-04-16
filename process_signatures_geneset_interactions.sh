@@ -13,7 +13,7 @@ cat $1 | grep -P "_UP\t|_sig\t" | awk -F'\t' -v THRESHOLD=$2 '
 		if(NR > 1) {
 			printf ";\n\n";
 		}
-		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, downFdr, interactionType) VALUES";
+		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, interactionType) VALUES";
 		PRINT_COMMA = 0;
 	}
 	{
@@ -51,7 +51,7 @@ cat $1 | grep -P "_DN\t" | awk -F'\t' -v THRESHOLD=$2 '
 		if(NR > 1) {
 			printf ";\n\n";
 		}
-		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, upFdr, downFdr, interactionType) VALUES";
+		printf "INSERT INTO drug_signature_interaction (drugId, signature, tau, downFdr, interactionType) VALUES"
 		PRINT_COMMA = 0;
 	}
 	{
