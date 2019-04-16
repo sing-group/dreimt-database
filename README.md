@@ -128,15 +128,17 @@ process_genes_universe.sh generated-data/intermediate/D1geneUniverse.tsv > gener
 Run the `process_signatures_updown_interactions.sh` script in order to process the `generated-data/intermediate/Dreimt_DB_SIG_Annotated_20190227.tsv` file and obtain the MySQL `INSERT` data queries:
 
 ```bash
-process_signatures_updown_interactions.sh generated-data/intermediate/Dreimt_DB_SIG_Annotated_20190227.tsv > generated-data/sql/fill_signatures_updown_interactions.sql
-``` 
+process_signatures_updown_interactions.sh generated-data/intermediate/Dreimt_DB_SIG_Annotated_20190227.tsv 75 > generated-data/sql/fill_signatures_updown_interactions.sql
+```
+Where `75` is the threshold value for filtering out those interactions with `|TAU| >= threshold`.
 
 ### 2.8.2 Data from genesets
 Run the `process_signatures_geneset_interactions.sh` script in order to process the `generated-data/intermediate/Dreimt_DB_GS_Annotated_20190227.tsv` file and obtain the MySQL `INSERT` data queries:
 
 ```bash
-process_signatures_geneset_interactions.sh generated-data/intermediate/Dreimt_DB_GS_Annotated_20190227.tsv > generated-data/sql/fill_signatures_geneset_interactions.sql
+process_signatures_geneset_interactions.sh generated-data/intermediate/Dreimt_DB_GS_Annotated_20190227.tsv 75 > generated-data/sql/fill_signatures_geneset_interactions.sql
 ``` 
+Where `75` is the threshold value for filtering out those interactions with `|TAU| >= threshold`.
 
 ## 2.9 Populate the database
 Finally, run the following command to populate the `dreimt` database, which must have been created previously:
