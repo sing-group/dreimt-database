@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>0.0.1</version>
+	<params>
+		<param name="workingDirectory" shortName="wd" global="true"></param>
+		
+		<param name="dreimtUtilsPath" shortName="dup"></param>
+		<param name="dreimtDatabaseScriptsPath" shortName="ddsp"></param>
+		<flag name="removeDatabaseZip" shortName="rmz"></flag>
+		
+		<!-- Source files -->
+		<param name="dbZipName" shortName="dbz"></param>
+		<param name="dbGenesets" shortName="dbGs" defaultValue="Database/Dreimt_DB_GS_Annotated.rds"></param>
+        <param name="dbSignatures" shortName="dbSigs" defaultValue="Database/Dreimt_DB_SIG_Annotated.rds"></param>
+		<param name="drugsFile" shortName="dF" defaultValue="Inputs/sig_id_table_LINCS_short.tsv"></param>
+		<param name="signaturesFile" shortName="sF" defaultValue="Inputs/Dreimt_curation_BD.tsv"></param>
+		<param name="d1GeneUniverseFile" shortName="d1" defaultValue="Inputs/D1geneUniverse.rds"></param>
+		<param name="gmtSignaturesFile" shortName="gS" defaultValue="Inputs/Dreimt_Signatures_clean.gmt"></param>
+		<param name="gmtGeneSetsFile" shortName="gG" defaultValue="Inputs/Dreimt_Genesets_clean.gmt"></param>
+		
+		<!-- Intermediate files -->
+        <param name="dbVersionsFile" shortName="dbf" defaultValue="data-versions.txt" global="true"></param>
+		<param name="intermediateDirectory" shortName="iD" defaultValue="generated-data/intermediate" global="true"></param>
+		<param name="intermediateSignaturesFile" shortName="isf" defaultValue="signatures_step_1.tsv"></param>
+		<param name="pmidsFile" shortName="pf" defaultValue="PMIDs.txt"></param>
+		<param name="pmidsTsvFile" shortName="ptf" defaultValue="PMIDs.tsv"></param>
+		<param name="intermediateD1GeneUniverseFile" shortName="id1" defaultValue="D1geneUniverse.tsv"></param>
+		<param name="intermediateDbGenesets" shortName="idbGs" defaultValue="Dreimt_DB_GS_Annotated.tsv"></param>
+        <param name="intermediateDbSignatures" shortName="idbSigs" defaultValue="Dreimt_DB_SIG_Annotated.tsv"></param>
+		
+		<!-- Final SQL files -->
+		<param name="sqlDirectory" shortName="sqlD" defaultValue="generated-data/sql" global="true"></param>
+		<param name="tauThreshold" shortName="tt" defaultValue="75"></param>
+	</params>
+	<tasks>
+        <task id="task-0" params="dbZipName removeDatabaseZip">
+			if [ ! -d "${workingDirectory}/Inputs" ]; then
+				# wget http://static.sing-group.org/software/dreimt/database/sources/${dbZipName}
+				unzip ${workingDirectory}/${dbZipName} -d ${workingDirectory}
+				if [ ! -z ${removeDatabaseZip} ]; then 
+					rm ${dbZipName}
+				fi
+			fi
+
+		</task>
+		<task id="task-1-1" after="task-0">
+            mkdir -p ${workingDirectory}/${intermediateDirectory}
+		</task>
+		<task id="task-1-3-1" after="task-1-1" params="intermediateSignaturesFile signaturesFile">
+			awk '{ sub("\r$", ""); print }' ${workingDirectory}/${signaturesFile} > ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
+		</task>
+		<task id="task-1-3-2" after="task-1-3-1" params="intermediateSignaturesFile signaturesFile">
+			echo "Signatures with PubMedID = NA:"
+			awk -F'\t' '{ if($14 == "NA") { print $0 } }' ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
+			echo -e "\nSignatures with empty PubMedID:"
+			awk -F'\t' '{ if($14 == "") { print $0 } }' ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
+		</task>
+		<task id="task-1-3-3" after="task-1-3-2" params="intermediateSignaturesFile pmidsFile">
+			awk -F'\t' 'NR>1{print $14}' ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} | sort -u | grep -v 'NA' > ${workingDirectory}/${intermediateDirectory}/${pmidsFile}
+		</task>
+		<task id="task-1-3-4" after="task-1-3-3" params="dreimtUtilsPath pmidsFile pmidsTsvFile">
+			cd ${dreimtUtilsPath}
+			mvn clean compile exec:java -Dexec.mainClass="org.sing_group.derimt.util.PubmedIdsResolver" -Dexec.args="${workingDirectory}/${intermediateDirectory}/${pmidsFile} ${workingDirectory}/${intermediateDirectory}/${pmidsTsvFile}"
+            
+			pmidsCount=$(wc -l ${workingDirectory}/${intermediateDirectory}/${pmidsFile} | cut -d ' ' -f1)
+			processedPmidsCount=$(wc -l ${workingDirectory}/${intermediateDirectory}/${pmidsTsvFile} | cut -d ' ' -f1)
+			processedPmidsCount=$(( $processedPmidsCount - 1 ))
+			echo -e "PMIDs: $pmidsCount \tProcessed: $processedPmidsCount"
+			if [[ $processedPmidsCount -ne $pmidsCount ]] ; then
+				exit 1
+			fi
+		</task>
+		<task id="task-1-4" after="task-1-1" params="dbGenesets dbSignatures intermediateDirectory intermediateDbGenesets intermediateDbSignatures">
+			<![CDATA[
+			setwd(Sys.getenv("workingDirectory"))
+			genesets <- readRDS(Sys.getenv("dbGenesets"))
+			write.table(genesets[,c(1,3,4,5)], paste0(Sys.getenv("intermediateDirectory"), "/", Sys.getenv("intermediateDbGenesets")), sep = "\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
+			
+			signatures <- readRDS(Sys.getenv("dbSignatures"))
+			write.table(signatures[,c(1,3,4,5,6)], paste0(Sys.getenv("intermediateDirectory"), "/", Sys.getenv("intermediateDbSignatures")), sep = "\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
+			]]>
+		</task>
+		<task id="task-1-5" after="task-1-1" params="d1GeneUniverseFile intermediateDirectory intermediateD1GeneUniverseFile">
+			<![CDATA[
+			setwd(Sys.getenv("workingDirectory"))
+            universe <- readRDS(Sys.getenv("d1GeneUniverseFile"))
+            write.table(universe, paste0(Sys.getenv("intermediateDirectory"), "/", Sys.getenv("intermediateD1GeneUniverseFile")), sep = "\t", row.names=FALSE, quote=FALSE)
+			]]>
+		</task>
+        <task id="task-1-6" after="task-1-1" params="d1GeneUniverseFile gmtSignaturesFile">
+			<![CDATA[
+			setwd(Sys.getenv("workingDirectory"));
+			library(GSEABase, quietly = TRUE);
+			immune.signature = getGmt(Sys.getenv("gmtSignaturesFile"));
+			status <- 0;
+
+			for(i in seq(1,length(immune.signature),2)) {
+				up <- geneIds(immune.signature[i]);
+				down <- geneIds(immune.signature[i+1]);
+				intersection <- intersect(up[[1]], down[[1]]);
+				if(length(intersection) > 0) {
+					cat(i, "\t", names(immune.signature[i]), "\t", length(intersection),"\n");
+					status <- 1;
+				}
+			};
+			quit(status = status);
+			]]>
+		</task>
+		<task id="task-2-1-sql-init" after="task-1-3-4, task-1-4, task-1-5, task-1-6" params="dbVersionsFile">
+			#rm -rf ${workingDirectory}/${sqlDirectory}
+			#mkdir ${workingDirectory}/${sqlDirectory}
+			rm -f ${workingDirectory}/${dbVersionsFile}
+			wget http://static.sing-group.org/software/dreimt/database/sources/database-versions.txt -O ${workingDirectory}/${dbVersionsFile}
+		</task>
+		<task id="task-2-2" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath drugsFile">
+			${dreimtDatabaseScriptsPath}/process_drug.sh ${workingDirectory}/${drugsFile} > ${workingDirectory}/${sqlDirectory}/fill_drug.sql
+		</task>
+		<task id="task-2-3" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath pmidsTsvFile">
+			${dreimtDatabaseScriptsPath}/process_article_metadata.sh ${workingDirectory}/${intermediateDirectory}/${pmidsTsvFile} > ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql
+		</task>
+		<task id="task-2-4" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath intermediateSignaturesFile">
+			${dreimtDatabaseScriptsPath}/process_signatures.sh ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} > ${workingDirectory}/${sqlDirectory}/fill_signatures.sql
+		</task>
+		<task id="task-2-5" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath gmtSignaturesFile">
+			${dreimtDatabaseScriptsPath}/process_gmt_signatures_updown.sh ${workingDirectory}/${gmtSignaturesFile} > ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql
+		</task>
+		<task id="task-2-6" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath gmtGeneSetsFile">
+			${dreimtDatabaseScriptsPath}/process_gmt_signatures_geneset.sh ${workingDirectory}/${gmtGeneSetsFile} > ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql
+		</task>
+		<task id="task-2-7" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath intermediateDirectory intermediateD1GeneUniverseFile">
+			${dreimtDatabaseScriptsPath}/process_genes_universe.sh ${workingDirectory}/${intermediateDirectory}/${intermediateD1GeneUniverseFile} > ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql
+		</task>
+		<task id="task-2-8-1" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath intermediateDirectory intermediateDbSignatures tauThreshold">
+			${dreimtDatabaseScriptsPath}/process_signatures_updown_interactions.sh ${workingDirectory}/${intermediateDirectory}/${intermediateDbSignatures} $tauThreshold > ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql
+		</task>
+		<task id="task-2-8-2" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath intermediateDirectory intermediateDbGenesets tauThreshold">
+			${dreimtDatabaseScriptsPath}/process_signatures_geneset_interactions.sh ${workingDirectory}/${intermediateDirectory}/${intermediateDbGenesets} $tauThreshold > ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql
+		</task>
+		<task id="task-2-9" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath dbVersionsFile">
+			${dreimtDatabaseScriptsPath}/process_database_versions.sh ${workingDirectory}/${dbVersionsFile} > ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql
+		</task>
+		<task id="task-2-10-join-sql" after="task-2-2, task-2-3, task-2-4, task-2-5, task-2-6, task-2-7, task-2-8-1, task-2-8-2 task-2-9">
+			cat ${workingDirectory}/${sqlDirectory}/fill_drug.sql ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql ${workingDirectory}/${sqlDirectory}/fill_signatures.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql | gzip > ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
+		</task>
+	</tasks>
+</pipeline>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<runners xmlns="http://sing-group.org/compi/runners-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <runner tasks="task-1-4, task-1-5">
+        envs=$(for param in $task_params; do echo -n "-e $param "; done)
+        echo -n "$envs"
+        echo $workingDirectory
+        docker run --rm -u $(id -u $(whoami)) $envs -v ${workingDirectory}:${workingDirectory} r-base R -e &quot;$(echo &quot;$task_code&quot; | tr -d '\t')&quot;
+    </runner>
+    <runner tasks="task-1-6">
+        envs=$(for param in $task_params; do echo -n "-e $param "; done)
+        echo -n "$envs"
+        echo $workingDirectory
+        docker run --rm -u $(id -u $(whoami)) $envs -v ${workingDirectory}:${workingDirectory} singgroup/r-dreimt R -e &quot;$(echo &quot;$task_code&quot; | tr -d '\t' | tr '\n' ' ')&quot;
+    </runner>
+</runners>
