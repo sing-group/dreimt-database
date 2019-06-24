@@ -6,7 +6,7 @@ cat $1 | awk -F'\t' '
 		gsub(" ", "_", $11);
 
 		# Fix signature name column (field 1)
-		gsub("_UP$|_sig$", "", $1);
+		gsub("_UP$|_DN$|_sig$", "", $1);
 
 		# Process only signatures with a signature type (field 12)
 		if($12 != "") {
