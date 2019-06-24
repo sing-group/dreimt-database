@@ -20,6 +20,11 @@ Firstly, fix line endings converting them from Windows (DOS) to Unix to prevent 
 awk '{ sub("\r$", ""); print }' Inputs/Dreimt_curation_BD.tsv > generated-data/intermediate/signatures_step_1.tsv
 ```
 
+Check also that there are no duplicated signature names after removing the suffixes `_UP`, `_DN` or `_sig`:
+```bash
+cat generated-data/intermediate/signatures_step_1.tsv | awk -F'\t' 'NR>1{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' | sort | uniq -d
+```
+
 ### 1.3.2 Check that all signatures have a PubMedID
 The file used in this step must contain a column named `PubMedID` (eleventh column) with the publication identifiers, run the following column to check missing ones:
 ```bash

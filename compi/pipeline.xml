@@ -49,6 +49,11 @@
 		</task>
 		<task id="task-1-3-1" after="task-1-1" params="intermediateSignaturesFile signaturesFile">
 			awk '{ sub("\r$", ""); print }' ${workingDirectory}/${signaturesFile} > ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
+            duplicatedSignatureNamesCount=$(cat ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} | awk -F'\t' 'NR>1{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' | sort | uniq -d | wc -l)
+            if [[ $duplicatedSignatureNamesCount -ne 0 ]] ; then
+                echo -e "There are $duplicatedSignatureNamesCount duplicated signature names in the file ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}"
+				exit 1
+			fi
 		</task>
 		<task id="task-1-3-2" after="task-1-3-1" params="intermediateSignaturesFile signaturesFile">
 			echo "Signatures with PubMedID = NA:"
