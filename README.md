@@ -202,7 +202,7 @@ Signatures preceded by a '>' in the result of the diff command are present in th
 ### 3.4 Check that the up and down genesets in the `Dreimt_Signatures_clean.gmt` file do not contain common genes
 
 ```bash
-docker run --rm -it -u $(id -u $(whoami)) -e WORK_DIR=$(pwd) -v $(pwd):$(pwd) singgroup/r-dreimt-cmap R
+docker run --rm -it -u $(id -u $(whoami)) -e WORK_DIR=$(pwd) -v $(pwd):$(pwd) singgroup/r-dreimt R
 setwd(Sys.getenv("WORK_DIR"))
 library(GSEABase, quietly = TRUE)
 immune.signature = getGmt("Inputs/Dreimt_Signatures_clean.gmt")
