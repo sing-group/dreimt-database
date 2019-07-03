@@ -14,13 +14,13 @@
 		<param name="dbGenesets" shortName="dbGs" defaultValue="Database/Dreimt_DB_GS_Annotated.rds"></param>
         <param name="dbSignatures" shortName="dbSigs" defaultValue="Database/Dreimt_DB_SIG_Annotated.rds"></param>
 		<param name="drugsFile" shortName="dF" defaultValue="Inputs/sig_id_table_LINCS_short.tsv"></param>
-		<param name="signaturesFile" shortName="sF" defaultValue="Inputs/Dreimt_curation_BD.tsv"></param>
+		<param name="signaturesFile" shortName="sF" defaultValue="Inputs/Dreimt_curation_DB.tsv"></param>
 		<param name="d1GeneUniverseFile" shortName="d1" defaultValue="Inputs/D1geneUniverse.rds"></param>
 		<param name="gmtSignaturesFile" shortName="gS" defaultValue="Inputs/Dreimt_Signatures_clean.gmt"></param>
 		<param name="gmtGeneSetsFile" shortName="gG" defaultValue="Inputs/Dreimt_Genesets_clean.gmt"></param>
 		
 		<!-- Intermediate files -->
-        <param name="dbVersionsFile" shortName="dbf" defaultValue="data-versions.txt" global="true"></param>
+        <param name="dbVersionsFile" shortName="dbf" defaultValue="database-versions.txt" global="true"></param>
 		<param name="intermediateDirectory" shortName="iD" defaultValue="generated-data/intermediate" global="true"></param>
 		<param name="intermediateSignaturesFile" shortName="isf" defaultValue="signatures_step_1.tsv"></param>
 		<param name="pmidsFile" shortName="pf" defaultValue="PMIDs.txt"></param>
@@ -42,12 +42,15 @@
 					rm ${dbZipName}
 				fi
 			fi
-
 		</task>
 		<task id="task-1-1" after="task-0">
             mkdir -p ${workingDirectory}/${intermediateDirectory}
 		</task>
 		<task id="task-1-3-1" after="task-1-1" params="intermediateSignaturesFile signaturesFile">
+            if [[ ! -f ${workingDirectory}/${signaturesFile} ]] ; then
+                echo "The file ${workingDirectory}/${signaturesFile} does not exist"
+                exit 1
+            fi
 			awk '{ sub("\r$", ""); print }' ${workingDirectory}/${signaturesFile} > ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
             duplicatedSignatureNamesCount=$(cat ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} | awk -F'\t' 'NR>1{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' | sort | uniq -d | wc -l)
             if [[ $duplicatedSignatureNamesCount -ne 0 ]] ; then
@@ -55,7 +58,7 @@
 				exit 1
 			fi
 		</task>
-		<task id="task-1-3-2" after="task-1-3-1" params="intermediateSignaturesFile signaturesFile">
+		<task id="task-1-3-2" after="task-1-3-1" params="intermediateSignaturesFile">
 			echo "Signatures with PubMedID = NA:"
 			awk -F'\t' '{ if($14 == "NA") { print $0 } }' ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
 			echo -e "\nSignatures with empty PubMedID:"
@@ -75,6 +78,35 @@
 			if [[ $processedPmidsCount -ne $pmidsCount ]] ; then
 				exit 1
 			fi
+		</task>
+		<task id="task-1-3-5" after="task-1-3-4" params="signaturesFile gmtSignaturesFile gmtGeneSetsFile">
+			dbSigNamesTmpFile=$(mktemp /tmp/DB_signature_names.XXXXXX)
+			cat  ${workingDirectory}/${signaturesFile} | awk -F'\t' '{gsub("_UP$|_sig$", "", $1); if($12 != "") {print $1}}' | sort -u > ${dbSigNamesTmpFile}
+
+			gmtFilesSigNamesTmpFile=$(mktemp /tmp/GMTs_signature_names.XXXXXX)
+			cat  ${workingDirectory}/${gmtSignaturesFile}| awk '{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' > ${gmtFilesSigNamesTmpFile}
+			cat ${workingDirectory}/${gmtGeneSetsFile} | awk '{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' >> ${gmtFilesSigNamesTmpFile}
+
+			sortedGmtFilesSigNamesTmpFile=$(mktemp /tmp/GMTs_signature_names_sorted.XXXXXX)
+			cat ${gmtFilesSigNamesTmpFile} | sort -u > ${sortedGmtFilesSigNamesTmpFile}
+
+			diffFile=$(mktemp /tmp/DB_vs_GMT_signature_names_DIFF.XXXXXX)
+			diff ${dbSigNamesTmpFile} ${sortedGmtFilesSigNamesTmpFile} > ${diffFile}
+
+			count=$(cat ${diffFile} | grep '>' | wc -l)
+			exitCode=0
+			
+			if [[ $count -ne 0 ]] ; then
+                echo -e "There are $count signatures that appear in the GMT files but not in the ${signaturesFile}"
+				cat ${diffFile} | grep '>'
+				exitCode=1
+			fi
+			exit $exitCode
+			
+			rm $dbSigNamesTmpFile
+			rm $gmtFilesSigNamesTmpFile
+			rm $sortedGmtFilesSigNamesTmpFile
+			rm $diffFile
 		</task>
 		<task id="task-1-4" after="task-1-1" params="dbGenesets dbSignatures intermediateDirectory intermediateDbGenesets intermediateDbSignatures">
 			<![CDATA[
@@ -113,8 +145,8 @@
 			]]>
 		</task>
 		<task id="task-2-1-sql-init" after="task-1-3-4, task-1-4, task-1-5, task-1-6" params="dbVersionsFile">
-			#rm -rf ${workingDirectory}/${sqlDirectory}
-			#mkdir ${workingDirectory}/${sqlDirectory}
+			rm -rf ${workingDirectory}/${sqlDirectory}
+			mkdir ${workingDirectory}/${sqlDirectory}
 			rm -f ${workingDirectory}/${dbVersionsFile}
 			wget http://static.sing-group.org/software/dreimt/database/sources/database-versions.txt -O ${workingDirectory}/${dbVersionsFile}
 		</task>
