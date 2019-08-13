@@ -2,7 +2,7 @@
 
 Database files are available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources`. Moreover, a file with the available database versions is available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources/database-versions.txt`, indicating which is the current version.
 
-Each database version is available at a ZIP file (e.g. `v20190612.zip`), containing three folders: `Database`, `Inputs` and `Intermediate`.
+Each database version is available at a ZIP file (e.g. `v20190612.zip`), containing three folders: `Database`, `Inputs`, `Intermediate` and `Precalculated` (which, at the same time, can contain `signatures` and `genesets`).
 
 Note that the `Inputs/Dreimt_curation_BD.tsv` contains all the signatures used to create the database and it must contain a column named `PubMedID` with the publication identifiers (see subsections 1.3.2 and 3.2 for more details).
 
@@ -146,7 +146,16 @@ Run the `process_database_versions.sh` script in order to process the `generated
 ```bash
 process_database_versions.sh database-versions.txt > generated-data/sql/fill_database_versions.sql
 ``` 
-## 2.10 Populate the database
+
+## 2.10 Precalculated examples tables
+
+Run the `process_precalculated_results.sh` script in order to process the `Precalculated` directory and obtain the MySQL `INSERT` data queries for the precalculated examples tables:
+
+```bash
+process_precalculated_results.sh Precalculated > generated-data/sql/fill_precalculated_examples.sql
+``` 
+
+## 2.11 Populate the database
 Finally, run the following command to populate the `dreimt` database, which must have been created previously:
 ```bash
 sudo mysql dreimt < generated-data/sql/fill_drug.sql
@@ -158,8 +167,9 @@ sudo mysql dreimt < generated-data/sql/fill_genes_universe.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_updown_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_geneset_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_database_versions.sql
+sudo mysql dreimt < generated-data/sql/fill_precalculated_examples.sql
 ```
-Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
+Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
 
 # 3. Additional utilities
 
