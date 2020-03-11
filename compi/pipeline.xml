@@ -145,7 +145,7 @@
 			quit(status = status);
 			]]>
 		</task>
-		<task id="task-2-1-sql-init" after="task-1-3-4, task-1-4, task-1-5, task-1-6" params="dbVersionsFile">
+		<task id="task-2-1-sql-init" after="task-1-3-5, task-1-4, task-1-5, task-1-6" params="dbVersionsFile">
 			rm -rf ${workingDirectory}/${sqlDirectory}
 			mkdir ${workingDirectory}/${sqlDirectory}
 			rm -f ${workingDirectory}/${dbVersionsFile}
