@@ -153,9 +153,18 @@ Run the `process_precalculated_results.sh` script in order to process the `Preca
 
 ```bash
 process_precalculated_results.sh Precalculated > generated-data/sql/fill_precalculated_examples.sql
-``` 
+```
 
-## 2.11 Populate the database
+## 2.11 Precalculated examples tables
+
+Run the `process_dreimt_information.sh` script in order to the MySQL `INSERT` data queries for the Dreimt database information table:
+
+```bash
+process_dreimt_information.sh 75 > generated-data/sql/fill_dreimt_information.sql
+``` 
+Where `75` is the threshold value for filtering out those interactions with `|TAU| >= threshold` (as used in subsection 2.8).
+
+## 2.12 Populate the database
 Finally, run the following command to populate the `dreimt` database, which must have been created previously:
 ```bash
 sudo mysql dreimt < generated-data/sql/fill_drug.sql
@@ -168,8 +177,9 @@ sudo mysql dreimt < generated-data/sql/fill_signatures_updown_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_geneset_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_database_versions.sql
 sudo mysql dreimt < generated-data/sql/fill_precalculated_examples.sql
+sudo mysql dreimt < generated-data/sql/fill_dreimt_information.sql
 ```
-Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
+Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql generated-data/sql/fill_dreimt_information.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
 
 # 3. Additional utilities
 
