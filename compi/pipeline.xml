@@ -85,7 +85,7 @@
 			cat  ${workingDirectory}/${signaturesFile} | awk -F'\t' '{gsub("_UP$|_sig$", "", $1); if($12 != "") {print $1}}' | sort -u > ${dbSigNamesTmpFile}
 
 			gmtFilesSigNamesTmpFile=$(mktemp /tmp/GMTs_signature_names.XXXXXX)
-			cat  ${workingDirectory}/${gmtSignaturesFile}| awk '{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' > ${gmtFilesSigNamesTmpFile}
+			cat ${workingDirectory}/${gmtSignaturesFile}| awk '{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' > ${gmtFilesSigNamesTmpFile}
 			cat ${workingDirectory}/${gmtGeneSetsFile} | awk '{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' >> ${gmtFilesSigNamesTmpFile}
 
 			sortedGmtFilesSigNamesTmpFile=$(mktemp /tmp/GMTs_signature_names_sorted.XXXXXX)

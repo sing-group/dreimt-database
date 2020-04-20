@@ -236,3 +236,13 @@ for(i in seq(1,length(immune.signature),2)) {
 	}
 }
 ```
+
+### 3.5 Create the backend development database
+The `create_backend_development_database.sh` script creates a subset of the database to be used in the backend during development. This script receives a list of signature names separated by `|` and generates the SQL files in `generated-data/development_database/sql`.
+
+```bash
+developmentPrecalculatedExamples=/path/to/Database/Development/Precalculated
+workingDirectory=/path/to/Database/20200311/
+dreimtDatabaseScriptsPath=/path/to/dreimt-database/ # path to this project
+create_backend_development_database.sh $workingDirectory $dreimtDatabaseScriptsPath $developmentPrecalculatedExamples "Macrophage_core|TH1_mediated_immunity|Tcell_dysfunction_AML|GSE7852_TREG_VS_TCONV_THYMUS|GSE22886_NAIVE_CD8_TCELL_VS_MONOCYTE|GSE21927_SPLEEN_C57BL6_VS_EL4_TUMOR_BALBC_MONOCYTES"
+```
