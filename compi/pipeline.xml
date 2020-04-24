@@ -8,7 +8,7 @@
 		<param name="dreimtUtilsPath" shortName="dup"></param>
 		<param name="dreimtDatabaseScriptsPath" shortName="ddsp"></param>
 		<flag name="removeDatabaseZip" shortName="rmz"></flag>
-		
+
 		<!-- Source files -->
 		<param name="dbZipName" shortName="dbz"></param>
 		<param name="dbGenesets" shortName="dbGs" defaultValue="Database/Dreimt_DB_GS_Annotated.rds"></param>
@@ -19,7 +19,7 @@
 		<param name="gmtSignaturesFile" shortName="gS" defaultValue="Inputs/Dreimt_Signatures_clean.gmt"></param>
 		<param name="gmtGeneSetsFile" shortName="gG" defaultValue="Inputs/Dreimt_Genesets_clean.gmt"></param>
         <param name="precalculatedExamplesDir" shortName="ped" defaultValue="Precalculated"></param>
-		
+
 		<!-- Intermediate files -->
         <param name="dbVersionsFile" shortName="dbf" defaultValue="database-versions.txt" global="true"></param>
 		<param name="intermediateDirectory" shortName="iD" defaultValue="generated-data/intermediate" global="true"></param>
@@ -33,6 +33,10 @@
 		<!-- Final SQL files -->
 		<param name="sqlDirectory" shortName="sqlD" defaultValue="generated-data/sql" global="true"></param>
 		<param name="tauThreshold" shortName="tt" defaultValue="75"></param>
+
+		<!-- Development database -->
+		<param name="developmentPrecalculatedExamples" shortName="ddbpe" defaultValue=""></param>
+		<param name="databaseSignatures" shortName="ddbs" defaultValue="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core"></param>
 	</params>
 	<tasks>
         <task id="task-0" params="dbZipName removeDatabaseZip">
@@ -186,6 +190,9 @@
 		</task>
 		<task id="task-2-12-join-sql" after="task-2-2, task-2-3, task-2-4, task-2-5, task-2-6, task-2-7, task-2-8-1, task-2-8-2, task-2-9, task-2-10, task-2-11">
 			cat ${workingDirectory}/${sqlDirectory}/fill_drug.sql ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql ${workingDirectory}/${sqlDirectory}/fill_signatures.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql ${workingDirectory}/${sqlDirectory}/fill_precalculated_examples.sql ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql | gzip > ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
+		</task>
+		<task id="task-3-development-database" after="task-2-12-join-sql" if="test ! -z ${developmentPrecalculatedExamples}" params="dreimtDatabaseScriptsPath developmentPrecalculatedExamples databaseSignatures">
+			${dreimtDatabaseScriptsPath}/create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}
 		</task>
 	</tasks>
 </pipeline>
