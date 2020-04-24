@@ -2,7 +2,7 @@
 
 cat $1 | awk -F'\t' '
 	BEGIN { 
-		printf "INSERT INTO genes (gene, universe) VALUES" 
+		printf "INSERT IGNORE INTO genes (gene, universe) VALUES" 
 	}
 	NR>1 { 
 		printf ","; 

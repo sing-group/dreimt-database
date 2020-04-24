@@ -189,6 +189,7 @@
 			${dreimtDatabaseScriptsPath}/process_dreimt_information.sh ${tauThreshold} > ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql
 		</task>
 		<task id="task-2-12-join-sql" after="task-2-2, task-2-3, task-2-4, task-2-5, task-2-6, task-2-7, task-2-8-1, task-2-8-2, task-2-9, task-2-10, task-2-11">
+			rm -f ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
 			cat ${workingDirectory}/${sqlDirectory}/fill_drug.sql ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql ${workingDirectory}/${sqlDirectory}/fill_signatures.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql ${workingDirectory}/${sqlDirectory}/fill_precalculated_examples.sql ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql | gzip > ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
 		</task>
 		<task id="task-3-development-database" after="task-2-12-join-sql" if="test ! -z ${developmentPrecalculatedExamples}" params="dreimtDatabaseScriptsPath developmentPrecalculatedExamples databaseSignatures">
