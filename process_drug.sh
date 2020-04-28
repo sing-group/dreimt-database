@@ -2,14 +2,18 @@
 
 cat $1 | awk -F'\t' '
 	BEGIN { 
-		printf "INSERT INTO drug (id, commonName, sourceDb, sourceName, status) VALUES"
+		printf "INSERT INTO drug (id, commonName, sourceDb, sourceName, status, dss) VALUES"
 	}
 	NR>2 { 
 		printf ","; 
 	}
 	NR>1 {
 		status = toupper($10);
-		printf "\n  (%s, \"%s\", \"%s\", \"%s\", \"%s\")", $1, $3, $4, $5, status;
+		if($12 == "NA") {
+			printf "\n  (%s, \"%s\", \"%s\", \"%s\", \"%s\", NULL)", $1, $3, $4, $5, status;
+		} else {
+			printf "\n  (%s, \"%s\", \"%s\", \"%s\", \"%s\", %s)", $1, $3, $4, $5, status, $12;
+		}
 	}
 	END { printf ";\n\n"}
 ';
