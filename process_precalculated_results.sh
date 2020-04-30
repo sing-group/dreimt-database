@@ -33,30 +33,12 @@ function insertPrecalculatedExample {
 	echo -e "INSERT INTO ${resultTypeTable}_$tableSubtype (work) VALUES (\"$id\");\n"
 }
 
-function insertJaccardResult {
-	id=$1
-	onlyUniverseGenes=$2
-	table=$3
-
-	echo -e "INSERT INTO jaccard_result (id, onlyUniverseGenes) VALUES (\"$id\", \"$onlyUniverseGenes\");\n"
-	echo -e "INSERT INTO $table (id) VALUES (\"$id\");\n"
-}
-
-function insertCmapResult {
-	id=$1
-	numPerm=$2
-	table=$3
-
-	echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$id\", \"$numPerm\");\n"
-	echo -e "INSERT INTO $table (id) VALUES (\"$id\");\n"
-}
-
 function processSignatureExample {
 	signatureDirectory=$1
 	echo -e "\n-- Signature directory: $signatureDirectory"
 	
 	source $signatureDirectory/metadata
-	echo -e "-- Description: $description\n"
+	echo -e "-- Description: $description"
 
 	cmapResultsFile="$signatureDirectory/results-cmap.tsv"
 	
@@ -70,7 +52,8 @@ function processSignatureExample {
 		insertPrecalculatedExample "CMAP_UPDOWN" $uuid "precalculated_example_cmap" "updown"
 		
 		source "$signatureDirectory/results-cmap-params"
-		insertCmapResult $uuid $gseaPermutations "cmap_result_updown"
+		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
+		echo -e "INSERT INTO cmap_result_updown (id) VALUES (\"$uuid\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_updown.sh "$signatureDirectory/signature.gmt" $uuid "cmap_result_updown_genes"
 		
@@ -89,7 +72,8 @@ function processSignatureExample {
 		insertPrecalculatedExample "JACCARD_UPDOWN" $uuid "precalculated_example_jaccard" "updown"
 		
 		source "$signatureDirectory/results-jaccard-params"
-		insertJaccardResult $uuid $onlyUniverseGenes "jaccard_result_updown"
+		echo -e "INSERT INTO jaccard_result (id, onlyUniverseGenes) VALUES (\"$uuid\", \"$onlyUniverseGenes\");\n"
+		echo -e "INSERT INTO jaccard_result_updown (id) VALUES (\"$uuid\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_updown.sh "$signatureDirectory/signature.gmt" $uuid "jaccard_result_updown_genes"
 		
@@ -108,13 +92,13 @@ function processGenesetExample {
 	echo -e "\n-- Signature directory: $signatureDirectory"
 	
 	source $signatureDirectory/metadata
-	echo -e "-- Description: $description\n"
+	echo -e "-- Description: $description"
 
 	cmapResultsFile="$signatureDirectory/results-cmap.tsv"
 	
 	if [ -f $cmapResultsFile ]; then 
 		uuid=$(uuidgen)
-		echo -e "-- CMAP result: $uuid\n"
+		echo -e "\n-- CMAP result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/cmap/geneset/$uuid"
 	
@@ -122,7 +106,8 @@ function processGenesetExample {
 		insertPrecalculatedExample "CMAP_GENESET" $uuid "precalculated_example_cmap" "geneset"
 		
 		source "$signatureDirectory/results-cmap-params"
-		insertCmapResult $uuid $gseaPermutations "cmap_result_geneset"
+		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
+		echo -e "INSERT INTO cmap_result_geneset (id, geneSetType) VALUES (\"$uuid\", \"$geneSetType\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_geneset.sh "$signatureDirectory/geneset.gmt" $uuid "cmap_result_geneset_genes"
 		
@@ -133,7 +118,7 @@ function processGenesetExample {
 	
 	if [ -f $jaccardResultsFile ]; then 
 		uuid=$(uuidgen)
-		echo -e "-- Jaccard result: $uuid\n"
+		echo -e "\n-- Jaccard result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/jaccard/$uuid"
 	
@@ -141,7 +126,8 @@ function processGenesetExample {
 		insertPrecalculatedExample "JACCARD_GENESET" $uuid "precalculated_example_jaccard" "geneset"
 		
 		source "$signatureDirectory/results-jaccard-params"
-		insertJaccardResult $uuid $onlyUniverseGenes "jaccard_result_geneset"
+		echo -e "INSERT INTO jaccard_result (id, onlyUniverseGenes) VALUES (\"$uuid\", \"$onlyUniverseGenes\");\n"
+		echo -e "INSERT INTO jaccard_result_geneset (id, geneSetType) VALUES (\"$uuid\", \"$geneSetType\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_geneset.sh "$signatureDirectory/geneset.gmt" $uuid "jaccard_result_geneset_genes"
 
