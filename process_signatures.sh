@@ -23,9 +23,9 @@ cat $1 | awk -F'\t' '
 			}
 
 			if($14 == "NA") {
-				printf "INSERT INTO signature (signatureName, sourceDb, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $2, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23;
+				printf "INSERT INTO signature (signatureName, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23;
 			} else {
-				printf "INSERT INTO signature (signatureName, article_pubmedId, sourceDb, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $14, $2, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23;
+				printf "INSERT INTO signature (signatureName, article_pubmedId, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $14, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23;
 			}
 
 			# Split cellTypeA column ($6) to insert each value in the corresponding table
