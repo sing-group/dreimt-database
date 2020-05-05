@@ -8,9 +8,9 @@ BACKEND_URL="${2:-http://dreimt.sing-group.org/dreimt-backend}"
 function insertWork {
 	resultType=$1
 	id=$2
-	description=$3
 	name=$3
-	resultsReference=$4
+	description=$4
+	resultsReference=$5
 
 	creationDateTime=$(date "+%F %H:%M:%S")
 	finishingDateTime=$creationDateTime
@@ -27,8 +27,10 @@ function insertPrecalculatedExample {
 	id=$2
 	resultTypeTable=$3
 	tableSubtype=$4
+	reference=$5
+	url=$6
 
-	echo -e "INSERT INTO precalculated_example (resultType, work) VALUES (\"$resultType\", \"$id\");\n"
+	echo -e "INSERT INTO precalculated_example (resultType, work, reference, url) VALUES (\"$resultType\", \"$id\", \"$reference\", \"$url\");\n"
 	echo -e "INSERT INTO $resultTypeTable (work) VALUES (\"$id\");\n"
 	echo -e "INSERT INTO ${resultTypeTable}_$tableSubtype (work) VALUES (\"$id\");\n"
 }
@@ -48,8 +50,8 @@ function processSignatureExample {
 		
 		resultReference="$BACKEND_URL/rest/api/results/cmap/signature/$uuid"
 	
-		insertWork "CMAP_UPDOWN" $uuid "$description" $resultReference
-		insertPrecalculatedExample "CMAP_UPDOWN" $uuid "precalculated_example_cmap" "updown"
+		insertWork "CMAP_UPDOWN" $uuid "$title" "$description" $resultReference
+		insertPrecalculatedExample "CMAP_UPDOWN" $uuid "precalculated_example_cmap" "updown" "$reference" "$url"
 		
 		source "$signatureDirectory/results-cmap-params"
 		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
@@ -68,8 +70,8 @@ function processSignatureExample {
 		
 		resultReference="$BACKEND_URL/rest/api/results/jaccard/$uuid"
 	
-		insertWork "JACCARD_UPDOWN" $uuid "$description" $resultReference
-		insertPrecalculatedExample "JACCARD_UPDOWN" $uuid "precalculated_example_jaccard" "updown"
+		insertWork "JACCARD_UPDOWN" $uuid "$title" "$description" $resultReference
+		insertPrecalculatedExample "JACCARD_UPDOWN" $uuid "precalculated_example_jaccard" "updown" "$reference" "$url"
 		
 		source "$signatureDirectory/results-jaccard-params"
 		echo -e "INSERT INTO jaccard_result (id, onlyUniverseGenes) VALUES (\"$uuid\", \"$onlyUniverseGenes\");\n"
@@ -102,8 +104,8 @@ function processGenesetExample {
 		
 		resultReference="$BACKEND_URL/rest/api/results/cmap/geneset/$uuid"
 	
-		insertWork "CMAP_GENESET" $uuid "$description" $resultReference
-		insertPrecalculatedExample "CMAP_GENESET" $uuid "precalculated_example_cmap" "geneset"
+		insertWork "CMAP_GENESET" $uuid "$title" "$description" $resultReference
+		insertPrecalculatedExample "CMAP_GENESET" $uuid "precalculated_example_cmap" "geneset" "$reference" "$url"
 		
 		source "$signatureDirectory/results-cmap-params"
 		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
@@ -122,8 +124,8 @@ function processGenesetExample {
 		
 		resultReference="$BACKEND_URL/rest/api/results/jaccard/$uuid"
 	
-		insertWork "JACCARD_GENESET" $uuid "$description" $resultReference
-		insertPrecalculatedExample "JACCARD_GENESET" $uuid "precalculated_example_jaccard" "geneset"
+		insertWork "JACCARD_GENESET" $uuid "$title" "$description" $resultReference
+		insertPrecalculatedExample "JACCARD_GENESET" $uuid "precalculated_example_jaccard" "geneset" "$reference" "$url"
 		
 		source "$signatureDirectory/results-jaccard-params"
 		echo -e "INSERT INTO jaccard_result (id, onlyUniverseGenes) VALUES (\"$uuid\", \"$onlyUniverseGenes\");\n"
