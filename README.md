@@ -1,3 +1,12 @@
+# DREIMT database
+
+This repository contains instructions on how the DREIMT database is created, including technical implementation aspects and descriptions of the required processing to convert the source database files into the SQL statements to populate the database.
+
+   * [1. Database files preprocessing](README.md#1-database-files-preprocessing)
+   * [2. SQL generation scripts](README.md#2-sql-generation-scripts)
+   * [3. Additional utilities](README.md#3-additional-utilities)
+   * [4. Technical details](README.md#4-technical-details)
+
 # 1. Database files preprocessing
 
 Database files are available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources`. Moreover, a file with the available database versions is available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources/database-versions.txt`, indicating which is the current version.
@@ -75,7 +84,7 @@ universe <- readRDS("Inputs/D1geneUniverse.rds")
 write.table(universe, "generated-data/intermediate/D1geneUniverse.tsv", sep = "\t", row.names=FALSE, quote=FALSE)
 ```
 
-# 2. MySQL data scripts
+# 2. SQL generation scripts
 
 ## 2.1 Create a directory to store the generated SQL files from the intermediate files
 Run `mkdir generated-data/sql`.
@@ -247,3 +256,26 @@ dreimtDatabaseScriptsPath=/path/to/dreimt-database/ # path to this project
 databaseSignatures="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core"
 create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}
 ```
+
+> Note that the signature names in the `Dreimt_curation_DB.tsv` file end with `_UP`, `_DN`, or `_sig`. This suffixes must be removed when passing the signature names to this script.
+
+# 4. Technical details
+
+## 4.1 `DrugInteractionEffect` encoding
+The `DrugInteractionEffect` enumerated in the backend is used in the JPA entities as `EnumType.ORDINAL`, therefore its possible values must be encoded as `BOOST` = `0` and `INHIBIT` = `1` to store them in the database. 
+
+When processing data, this encoding is done by the `process_signatures_geneset_interactions.sh`and `process_signatures_updown_interactions.sh` scripts, using the criteria described below to compute the drug interaction effect on the cell types.
+
+| Interaction type                   	| TAU 	| Boosts 	| Inhibits 	| Prediction summary             	|
+|------------------------------------	|-----	|--------	|----------	|--------------------------------	|
+| SIGNATURE / SIGNATURE_UP / GENESET 	| > 0 	| A      	| B        	| Drug <span style="color:red">boosts</span> A compared to B    	|
+| SIGNATURE / SIGNATURE_UP / GENESET 	| < 0 	| B      	| A        	| Drug <span style="color:green">inhibits</span> A compared to B  	|
+| SIGNATURE_DOWN                     	| > 0 	| B      	| A        	| Drug <span style="color:red">boosts</span> B compared to A    	|
+| SIGNATURE_DOWN                     	| < 0 	| A      	| B        	| Drugs <span style="color:green">inhibits</span> B compared to A 	|
+
+## 4.2 `DrugStatus` encoding
+The `DrugStatus` enumerated in the backend is used in the JPA entities as `EnumType.ORDINAL`, therefore its possible values must be encoded as `APPROVED` = `0`, `EXPERIMENTAL` = `1`, and `WITHDRAWN` = `2` to store them in the database. 
+
+When processing data, this encoding is done by the `process_drug.sh` script.
+
+This decision was motivated by the fact that predictions can be ordered using the drug status and using this storage mode allows to use the drug status field as is in the SQL queries (approved are the most important ones and withdrawn the less important ones).
