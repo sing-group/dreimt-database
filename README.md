@@ -253,7 +253,7 @@ The `create_backend_development_database.sh` script creates a subset of the data
 developmentPrecalculatedExamples=/path/to/Database/Development/Precalculated
 workingDirectory=/path/to/Database/20200311/
 dreimtDatabaseScriptsPath=/path/to/dreimt-database/ # path to this project
-databaseSignatures="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core"
+databaseSignatures="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core|Tcell_exhaustion_TOX_overexpression_VS_TOX_control_LCMV"
 create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}
 ```
 
@@ -270,6 +270,8 @@ When processing data, this encoding is done by the `process_signatures_geneset_i
 |------------------------------------	|-----	|--------	|----------	|--------------------------------	|
 | SIGNATURE / SIGNATURE_UP / GENESET 	| > 0 	| A      	| B        	| Drug <span style="color:red">boosts</span> A compared to B    	|
 | SIGNATURE / SIGNATURE_UP / GENESET 	| < 0 	| B      	| A        	| Drug <span style="color:green">inhibits</span> A compared to B  	|
+| GENESET                            	| > 0 	| A      	| B        	| Drug <span style="color:red">boosts</span> A                   	|
+| GENESET                            	| < 0 	| B      	| A        	| Drug <span style="color:green">inhibits</span> A               	|
 | SIGNATURE_DOWN                     	| > 0 	| B      	| A        	| Drug <span style="color:red">boosts</span> B compared to A    	|
 | SIGNATURE_DOWN                     	| < 0 	| A      	| B        	| Drugs <span style="color:green">inhibits</span> B compared to A 	|
 

@@ -35,10 +35,21 @@ function insertPrecalculatedExample {
 	echo -e "INSERT INTO ${resultTypeTable}_$tableSubtype (work) VALUES (\"$id\");\n"
 }
 
+function unsetMetadataVariables {
+	unset description
+	unset title
+	unset reference
+	unset url
+	unset geneSetType
+	unset caseType
+	unset referenceType
+}
+
 function processSignatureExample {
 	signatureDirectory=$1
 	echo -e "\n-- Signature directory: $signatureDirectory"
-	
+
+	unsetMetadataVariables
 	source $signatureDirectory/metadata
 	echo -e "-- Description: $description"
 
@@ -54,7 +65,13 @@ function processSignatureExample {
 		insertPrecalculatedExample "CMAP_UPDOWN" $uuid "precalculated_example_cmap" "updown" "$reference" "$url"
 		
 		source "$signatureDirectory/results-cmap-params"
-		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
+
+		if [ -z "$referenceType" ]; then 
+			echo -e "INSERT INTO cmap_result (id, numPerm, caseType) VALUES (\"$uuid\", \"$gseaPermutations\", \"$caseType\");\n"
+		else 
+			echo -e "INSERT INTO cmap_result (id, numPerm, caseType, referenceType) VALUES (\"$uuid\", \"$gseaPermutations\", \"$caseType\", \"$referenceType\");\n"
+		fi
+
 		echo -e "INSERT INTO cmap_result_updown (id) VALUES (\"$uuid\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_updown.sh "$signatureDirectory/signature.gmt" $uuid "cmap_result_updown_genes"
@@ -92,7 +109,8 @@ fi
 function processGenesetExample {
 	signatureDirectory=$1
 	echo -e "\n-- Signature directory: $signatureDirectory"
-	
+
+	unsetMetadataVariables
 	source $signatureDirectory/metadata
 	echo -e "-- Description: $description"
 
@@ -108,7 +126,13 @@ function processGenesetExample {
 		insertPrecalculatedExample "CMAP_GENESET" $uuid "precalculated_example_cmap" "geneset" "$reference" "$url"
 		
 		source "$signatureDirectory/results-cmap-params"
-		echo -e "INSERT INTO cmap_result (id, numPerm) VALUES (\"$uuid\", \"$gseaPermutations\");\n"
+
+		if [ -z "$referenceType" ]; then 
+			echo -e "INSERT INTO cmap_result (id, numPerm, caseType) VALUES (\"$uuid\", \"$gseaPermutations\", \"$caseType\");\n"
+		else 
+			echo -e "INSERT INTO cmap_result (id, numPerm, caseType, referenceType) VALUES (\"$uuid\", \"$gseaPermutations\", \"$caseType\", \"$referenceType\");\n"
+		fi
+
 		echo -e "INSERT INTO cmap_result_geneset (id, geneSetType) VALUES (\"$uuid\", \"$geneSetType\");\n"
 
 		$SCRIPTS_DIR/scripts-precalculated/process_gmt_signatures_geneset.sh "$signatureDirectory/geneset.gmt" $uuid "cmap_result_geneset_genes"
