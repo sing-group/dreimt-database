@@ -21,7 +21,8 @@
         <param name="precalculatedExamplesDir" shortName="ped" defaultValue="Precalculated"></param>
 
 		<!-- Intermediate files -->
-        <param name="dbVersionsFile" shortName="dbf" defaultValue="database-versions.txt" global="true"></param>
+		<param name="dbVersionsFile" shortName="dbf" defaultValue="database-versions.txt" global="true"></param>
+		<param name="dbVersionsDirectory" shortName="dbd" defaultValue=""></param>
 		<param name="intermediateDirectory" shortName="iD" defaultValue="generated-data/intermediate" global="true"></param>
 		<param name="intermediateSignaturesFile" shortName="isf" defaultValue="signatures_step_1.tsv"></param>
 		<param name="pmidsFile" shortName="pf" defaultValue="PMIDs.txt"></param>
@@ -149,11 +150,15 @@
 			quit(status = status);
 			]]>
 		</task>
-		<task id="task-2-1-sql-init" after="task-1-3-5, task-1-4, task-1-5, task-1-6" params="dbVersionsFile">
+		<task id="task-2-1-sql-init" after="task-1-3-5, task-1-4, task-1-5, task-1-6" params="dbVersionsFile dbVersionsDirectory">
 			rm -rf ${workingDirectory}/${sqlDirectory}
 			mkdir ${workingDirectory}/${sqlDirectory}
 			rm -f ${workingDirectory}/${dbVersionsFile}
-			wget http://static.sing-group.org/software/dreimt/database/sources/database-versions.txt -O ${workingDirectory}/${dbVersionsFile}
+			if [ ! -z ${dbVersionsDirectory} ]; then 
+				cp ${dbVersionsDirectory}/${dbVersionsFile} ${workingDirectory}/${dbVersionsFile}
+			else
+				wget http://static.sing-group.org/software/dreimt/database/sources/database-versions.txt -O ${workingDirectory}/${dbVersionsFile}
+			fi
 		</task>
 		<task id="task-2-2" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath drugsFile">
 			${dreimtDatabaseScriptsPath}/process_drug.sh ${workingDirectory}/${drugsFile} > ${workingDirectory}/${sqlDirectory}/fill_drug.sql
