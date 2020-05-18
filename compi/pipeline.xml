@@ -34,6 +34,8 @@
 		<!-- Final SQL files -->
 		<param name="sqlDirectory" shortName="sqlD" defaultValue="generated-data/sql" global="true"></param>
 		<param name="tauThreshold" shortName="tt" defaultValue="75"></param>
+		<param name="backendProjectPath" shortName="bpp" defaultValue=""></param>
+		<param name="singUserName" shortName="sun" defaultValue=""></param>
 
 		<!-- Development database -->
 		<param name="developmentPrecalculatedExamples" shortName="ddbpe" defaultValue=""></param>
@@ -193,9 +195,22 @@
 		<task id="task-2-11" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath tauThreshold">
 			${dreimtDatabaseScriptsPath}/process_dreimt_information.sh ${tauThreshold} > ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql
 		</task>
-		<task id="task-2-12-join-sql" after="task-2-2, task-2-3, task-2-4, task-2-5, task-2-6, task-2-7, task-2-8-1, task-2-8-2, task-2-9, task-2-10, task-2-11">
-			rm -f ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
-			cat ${workingDirectory}/${sqlDirectory}/fill_drug.sql ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql ${workingDirectory}/${sqlDirectory}/fill_signatures.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql ${workingDirectory}/${sqlDirectory}/fill_precalculated_examples.sql ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql | gzip > ${workingDirectory}/${sqlDirectory}/fill_dreimt_db.sql.gz
+		<task id="task-2-12-join-sql" after="task-2-2, task-2-3, task-2-4, task-2-5, task-2-6, task-2-7, task-2-8-1, task-2-8-2, task-2-9, task-2-10, task-2-11" params="backendProjectPath">
+			currentVersion=$(cat ${workingDirectory}/${dbVersionsFile} | grep -P '\tT$' | cut -f 1)
+			rm -rf ${workingDirectory}/${sqlDirectory}/${currentVersion}
+			mkdir -p ${workingDirectory}/${sqlDirectory}/${currentVersion}
+
+			cat ${workingDirectory}/${sqlDirectory}/fill_drug.sql ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql ${workingDirectory}/${sqlDirectory}/fill_signatures.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_interactions.sql ${workingDirectory}/${sqlDirectory}/fill_genes_universe.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_updown_genes.sql ${workingDirectory}/${sqlDirectory}/fill_signatures_geneset_genes.sql ${workingDirectory}/${sqlDirectory}/fill_database_versions.sql ${workingDirectory}/${sqlDirectory}/fill_precalculated_examples.sql ${workingDirectory}/${sqlDirectory}/fill_dreimt_information.sql | gzip > ${workingDirectory}/${sqlDirectory}/${currentVersion}/fill_dreimt_db.sql.gz
+
+			if [ ! -z ${backendProjectPath} ]; then 
+				cp ${backendProjectPath}/additional-material/db/dreimt-db-initialization.sql ${workingDirectory}/${sqlDirectory}/${currentVersion}/dreimt-db-initialization.sql
+				cp ${backendProjectPath}/additional-material/db/dreimt-schema.sql ${workingDirectory}/${sqlDirectory}/${currentVersion}/dreimt-schema.sql
+				cp ${backendProjectPath}/additional-material/db/fill_full_drug_signature_interaction_table.sql ${workingDirectory}/${sqlDirectory}/${currentVersion}/fill_full_drug_signature_interaction_table.sql
+			fi
+		</task>
+		<task id="task-2-13-upload-sql" after="task-2-12-join-sql" if="test ! -z ${singUserName}" params="dbVersionsFile singUserName">
+			currentVersion=$(cat ${workingDirectory}/${dbVersionsFile} | grep -P '\tT$' | cut -f 1)
+			scp -r ${workingDirectory}/${sqlDirectory}/${currentVersion} ${singUserName}@static.sing-group.org:/mnt/coraid/SING_CITI_STATIC_FILES/software/dreimt/database/sql/
 		</task>
 		<task id="task-3-development-database" after="task-2-12-join-sql" if="test ! -z ${developmentPrecalculatedExamples}" params="dreimtDatabaseScriptsPath developmentPrecalculatedExamples databaseSignatures">
 			${dreimtDatabaseScriptsPath}/create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}

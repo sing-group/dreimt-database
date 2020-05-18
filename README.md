@@ -9,7 +9,7 @@ This repository contains instructions on how the DREIMT database is created, inc
 
 # 1. Database files preprocessing
 
-Database files are available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources`. Moreover, a file with the available database versions is available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources/database-versions.txt`, indicating which is the current version.
+Database files are available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources`. Moreover, a file with the available database versions is available at `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources/database-versions.txt`, indicating the name of the current version.
 
 Each database version is available at a ZIP file (e.g. `v20190612.zip`), containing three folders: `Database`, `Inputs`, `Intermediate` and `Precalculated` (which, at the same time, can contain `signatures` and `genesets`).
 
@@ -189,6 +189,12 @@ sudo mysql dreimt < generated-data/sql/fill_precalculated_examples.sql
 sudo mysql dreimt < generated-data/sql/fill_dreimt_information.sql
 ```
 Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql generated-data/sql/fill_dreimt_information.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
+
+## 2.13 Upload the SQL files to the SING static server
+
+The `dreimt-docker` Docker compose project sets an image with a MySQL that uses the `fill_dreimt_db.sql.gz` file generated in the previous step in order to load the DREIMT data. This image needs three additional SQL files that can be found in the `dreimt-backend` project, namely: `additional-material/db/dreimt-db-initialization.sql`, `additional-material/db/dreimt-schema.sql`, and `additional-material/db/fill_full_drug_signature_interaction_table.sql`.
+
+These four files must be uploaded into a directory named with the corresponding database version (e.g. `v20190612`) to `static.sing-group.org:/mnt/coraid/SING_CITI_STATIC_FILES/software/dreimt/database/sql/` to build the `dreimt-docker` Docker images.
 
 # 3. Additional utilities
 

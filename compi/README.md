@@ -12,6 +12,8 @@ workingDirectory=/home/hlfernandez/Data/Collaborations/CNIO-Dreimt/Database/2019
 dbZipName=v20190612.zip
 dreimtUtilsPath=/home/hlfernandez/Investigacion/Desarrollos/Git/cnio/dreimt-utils/
 dreimtDatabaseScriptsPath=/home/hlfernandez/Investigacion/Desarrollos/Git/cnio/dreimt-database/
+dbVersionsDirectory=/home/hlfernandez/Data/Collaborations/CNIO-Dreimt/Database/
+backendProjectPath=/home/hlfernandez/Investigacion/Desarrollos/Git/backends/dreimt-backend/
 ```
 
 The `workingDirectory` is where the file with name `dbZipName` will be downloaded (from `sftp://static.sing-group.org/home/hlfernandez/ftp_static/software/dreimt/database/sources/`) and uncompressed. The `dreimtDatabaseScriptsPath` parameter specifies the parent location of this file and `dreimtUtilsPath` the location of the [Dreimt Utils project](https://dev.sing-group.org/gitlab/dreimt/dreimt-utils).
