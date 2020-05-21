@@ -141,7 +141,7 @@ function processGenesetExample {
 	fi
 
 	jaccardResultsFile="$signatureDirectory/results-jaccard.tsv"
-	
+
 	if [ -f $jaccardResultsFile ]; then 
 		uuid=$(uuidgen)
 		echo -e "\n-- Jaccard result: $uuid\n"

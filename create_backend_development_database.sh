@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-  echo "Usage: `basename $0` /path/to/dreimt/database /path/to/dreimt-database/scripts /path/to/dreimt/development/precalculated <signature1|signature2|signature3|signature4>"
+  echo "Usage: `basename $0` /path/to/dreimt/database /path/to/dreimt-database/scripts /path/to/dreimt/development/precalculated <signature1|signature2|signature3|signature4> [<num_genes_each_signature>]"
   exit 0
 fi
 
@@ -11,6 +11,7 @@ DEVEL_DB_PRECALCULATED_EXAMPLES=$3
 SIGNATURE_NAMES=$4
 
 DEVEL_DB_DIR="$DATABASE_DIR/generated-data/development_database"
+DEVEL_DB_GENES_BY_SIGNATURE=${5:-"15"}
 TAU_THRESHOLD=75
 
 rm -rf $DEVEL_DB_DIR
@@ -47,18 +48,60 @@ $DDB/process_dreimt_information.sh ${TAU_THRESHOLD} > $DEVEL_DB_DIR/sql/fill_dre
 
 cp $DATABASE_DIR/generated-data/sql/fill_database_versions.sql $DEVEL_DB_DIR/sql/fill_database_versions.sql
 
+#
+# Update the genests.gmt file used to create the precalculated examples by taking genes from all the development database signatures
+#
+
+UP_GENES=$(cat $DATABASE_DIR/Inputs/Dreimt_Genesets_clean.gmt | grep -E $databaseSignatures | grep -P '_UP\t' | awk -v DEVEL_DB_GENES_BY_SIGNATURE=$DEVEL_DB_GENES_BY_SIGNATURE -F '\t' '{for(i = 3; i <= NF && i < DEVEL_DB_GENES_BY_SIGNATURE; i++) { print $i;}}')
+DOWN_GENES=$(cat $DATABASE_DIR/Inputs/Dreimt_Genesets_clean.gmt | grep -E $databaseSignatures | grep -P '_DN\t' | awk -v DEVEL_DB_GENES_BY_SIGNATURE=$DEVEL_DB_GENES_BY_SIGNATURE -F '\t' '{for(i = 3; i <= NF && i < DEVEL_DB_GENES_BY_SIGNATURE; i++) { print $i;}}')
+
+GENESET_GENES_1=$(cat $DATABASE_DIR/Inputs/Dreimt_Genesets_clean.gmt | grep -E $databaseSignatures | grep -P '_sig\t' | awk -v DEVEL_DB_GENES_BY_SIGNATURE=$DEVEL_DB_GENES_BY_SIGNATURE -F '\t' '{for(i = 3; i <= NF && i < DEVEL_DB_GENES_BY_SIGNATURE; i = i+2) { print $i;}}')
+GENESET_GENES_2=$(cat $DATABASE_DIR/Inputs/Dreimt_Genesets_clean.gmt | grep -E $databaseSignatures | grep -P '_sig\t' | awk -v DEVEL_DB_GENES_BY_SIGNATURE=$DEVEL_DB_GENES_BY_SIGNATURE -F '\t' '{for(i = 4; i <= NF && i < DEVEL_DB_GENES_BY_SIGNATURE; i = i+2) { print $i;}}')
+
+UP_GENES=$(echo -e "$UP_GENES\n$GENESET_GENES_1" | sort -u |  tr '\n' '\t' | sed 's/\t$//g')
+DOWN_GENES=$(echo -e "$DOWN_GENES\n$GENESET_GENES_2" | sort -u |  tr '\n' '\t' | sed 's/\t$//g')
+
+if [ -f $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old ]; then
+	echo "Found $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old file, it seems the last time you ran this script the geneset file was changed and you may have not rebuild the precalculated examples yet"
+	exit 1
+fi
+
+if [ -f $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt ]; then
+	mv $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old
+fi
+
+echo -e "Genes_UP\t\t$UP_GENES" > $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt
+echo -e "Genes_DN\t\t$DOWN_GENES" >> $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt
+
+if [ -f $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old ]; then
+	DIFF=$(diff $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old)
+	if [ "$DIFF" ]; then
+		echo "The source GMT genes file was modified, you must build the precalculated examples before continue";
+		exit 1
+	else
+		rm $DEVEL_DB_PRECALCULATED_EXAMPLES/genesets.gmt.old
+	fi
+fi
+
+rm -rf $DEVEL_DB_DIR/intermediate/Precalculated
 cp -R $DEVEL_DB_PRECALCULATED_EXAMPLES $DEVEL_DB_DIR/intermediate
 
 function processPrecalculatedResults {
-	mv $1/results-jaccard.tsv $1/results-jaccard.tsv.original
-	head -1 $1/results-jaccard.tsv.original > $1/results-jaccard.tsv
-	cat $1/results-jaccard.tsv.original | grep -E "${SIGNATURE_NAMES}" >> $1/results-jaccard.tsv
+	if [ -f $1/results-jaccard.tsv ]; then 
+		mv $1/results-jaccard.tsv $1/results-jaccard.tsv.original
+		head -1 $1/results-jaccard.tsv.original > $1/results-jaccard.tsv
+		cat $1/results-jaccard.tsv.original | grep -E "${SIGNATURE_NAMES}" >> $1/results-jaccard.tsv
+	fi
 
-	mv $1/results-cmap.tsv $1/results-cmap.tsv.original
-	head -n 21 $1/results-cmap.tsv.original > $1/results-cmap.tsv
+	if [ -f $1/results-cmap.tsv ]; then 
+		mv $1/results-cmap.tsv $1/results-cmap.tsv.original
+		head -n 21 $1/results-cmap.tsv.original > $1/results-cmap.tsv
+	fi
 }
 
 processPrecalculatedResults $DEVEL_DB_DIR/intermediate/Precalculated/genesets/1
+processPrecalculatedResults $DEVEL_DB_DIR/intermediate/Precalculated/genesets/2
+processPrecalculatedResults $DEVEL_DB_DIR/intermediate/Precalculated/genesets/3
 processPrecalculatedResults $DEVEL_DB_DIR/intermediate/Precalculated/signatures/1
 
 $DDB/process_precalculated_results.sh $DEVEL_DB_DIR/intermediate/Precalculated "http://localhost:8080/dreimt-backend" > $DEVEL_DB_DIR/sql/fill_precalculated_examples.sql
