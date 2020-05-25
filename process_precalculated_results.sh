@@ -59,7 +59,7 @@ function processSignatureExample {
 		uuid=$(uuidgen)
 		echo -e "-- CMAP result: $uuid\n"
 		
-		resultReference="$BACKEND_URL/rest/api/results/cmap/signature/$uuid"
+		resultReference="$BACKEND_URL/rest/api/results/drug-prioritization/signature/$uuid"
 	
 		insertWork "CMAP_UPDOWN" $uuid "$title" "$description" $resultReference
 		insertPrecalculatedExample "CMAP_UPDOWN" $uuid "precalculated_example_cmap" "updown" "$reference" "$url"
@@ -85,7 +85,7 @@ function processSignatureExample {
 		uuid=$(uuidgen)
 		echo -e "-- Jaccard result: $uuid\n"
 		
-		resultReference="$BACKEND_URL/rest/api/results/jaccard/$uuid"
+		resultReference="$BACKEND_URL/rest/api/results/signatures-comparison/$uuid"
 	
 		insertWork "JACCARD_UPDOWN" $uuid "$title" "$description" $resultReference
 		insertPrecalculatedExample "JACCARD_UPDOWN" $uuid "precalculated_example_jaccard" "updown" "$reference" "$url"
@@ -120,7 +120,7 @@ function processGenesetExample {
 		uuid=$(uuidgen)
 		echo -e "\n-- CMAP result: $uuid\n"
 		
-		resultReference="$BACKEND_URL/rest/api/results/cmap/geneset/$uuid"
+		resultReference="$BACKEND_URL/rest/api/results/drug-prioritization/geneset/$uuid"
 	
 		insertWork "CMAP_GENESET" $uuid "$title" "$description" $resultReference
 		insertPrecalculatedExample "CMAP_GENESET" $uuid "precalculated_example_cmap" "geneset" "$reference" "$url"
@@ -146,7 +146,7 @@ function processGenesetExample {
 		uuid=$(uuidgen)
 		echo -e "\n-- Jaccard result: $uuid\n"
 		
-		resultReference="$BACKEND_URL/rest/api/results/jaccard/$uuid"
+		resultReference="$BACKEND_URL/rest/api/results/signatures-comparison/$uuid"
 	
 		insertWork "JACCARD_GENESET" $uuid "$title" "$description" $resultReference
 		insertPrecalculatedExample "JACCARD_GENESET" $uuid "precalculated_example_jaccard" "geneset" "$reference" "$url"
