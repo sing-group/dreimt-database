@@ -38,7 +38,6 @@
 		<param name="singUserName" shortName="sun" defaultValue=""></param>
 
 		<!-- Development database -->
-		<param name="developmentPrecalculatedExamples" shortName="ddbpe" defaultValue=""></param>
 		<param name="databaseSignatures" shortName="ddbs" defaultValue="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core|Tcell_exhaustion_TOX_overexpression_VS_TOX_control_LCMV"></param>
 	</params>
 	<tasks>
@@ -212,8 +211,8 @@
 			currentVersion=$(cat ${workingDirectory}/${dbVersionsFile} | grep -P '\tT$' | cut -f 1)
 			scp -r ${workingDirectory}/${sqlDirectory}/${currentVersion} ${singUserName}@static.sing-group.org:/mnt/coraid/SING_CITI_STATIC_FILES/software/dreimt/database/sql/
 		</task>
-		<task id="task-3-development-database" after="task-2-12-join-sql" if="test ! -z ${developmentPrecalculatedExamples}" params="dreimtDatabaseScriptsPath developmentPrecalculatedExamples databaseSignatures">
-			${dreimtDatabaseScriptsPath}/create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}
+		<task id="task-3-development-database" after="task-2-12-join-sql" params="dreimtDatabaseScriptsPath databaseSignatures">
+			${dreimtDatabaseScriptsPath}/create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${databaseSignatures}
 		</task>
 	</tasks>
 </pipeline>

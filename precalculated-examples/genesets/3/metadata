@@ -1,0 +1,6 @@
+description="Differentially expressed genes in type 1 macrophage vs type 2 macrophage"
+title="Precalculated Example 4 (GENESET)"
+reference="Fulanito et al. 2020"
+url="https://www.ncbi.nlm.nih.gov/pubmed/27917244"
+geneSetType="GENESET"
+caseType="Macrophages M1"

@@ -256,16 +256,15 @@ for(i in seq(1,length(immune.signature),2)) {
 The `create_backend_development_database.sh` script creates a subset of the database to be used in the backend during development. This script receives a list of signature names separated by `|` and generates the SQL files in `generated-data/development_database/sql`.
 
 ```bash
-developmentPrecalculatedExamples=/path/to/Database/Development/Precalculated
 workingDirectory=/path/to/Database/20200311/
 dreimtDatabaseScriptsPath=/path/to/dreimt-database/ # path to this project
 databaseSignatures="GSE6259_33D1_POS_VS_DEC205_POS_FLT3L_INDUCED_SPLENIC_DC|GSE16451_IMMATURE_VS_MATURE_NEURON_CELL_LINE_WEST_EQUINE_ENC_VIRUS|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_6H_IFNA_STIM|GSE16450_IMMATURE_VS_MATURE_NEURON_CELL_LINE_12H_IFNA_STIM|TH1_mediated_immunity|Macrophage_core|Tcell_exhaustion_TOX_overexpression_VS_TOX_control_LCMV"
-create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${developmentPrecalculatedExamples} ${databaseSignatures}
+create_backend_development_database.sh ${workingDirectory} ${dreimtDatabaseScriptsPath} ${databaseSignatures}
 ```
 
 Some important notes regarding this script:
 1. Note that the signature names in the `Dreimt_curation_DB.tsv` file end with `_UP`, `_DN`, or `_sig`. This suffixes must be removed when passing the signature names to this script.
-2. The `Precalculated` examples directory contains a `genesets.gmt` file which contains two genesets used to create the different precalculated examples. This file is updated by this script by taking some genes from all the development database signatures and merging them to create the up and down genesets. This way, it is guaranteed that all signatures in the database has a minimum overlapping with the precalculated examples when running a Jaccard (or Signatures comparison) analysis. If the `genesets.gmt` changes for some reason (e.g. a signature is added or removed), then the script will stop requiring to update the precalculated examples results before proceeding.
+2. The `precalculated-examples` directory of this repository contains a `genesets.gmt` file which contains two genesets used to create the different precalculated examples. This file is updated by this script by taking some genes from all the development database signatures and merging them to create the up and down genesets. This way, it is guaranteed that all signatures in the database has a minimum overlapping with the precalculated examples when running a Jaccard (or Signatures comparison) analysis. If the `genesets.gmt` changes for some reason (e.g. a signature is added or removed), then the script will stop requiring to update the precalculated examples results before proceeding.
 
 # 4. Technical details
 

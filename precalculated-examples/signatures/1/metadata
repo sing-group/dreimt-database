@@ -1,0 +1,7 @@
+description="Differentially expressed genes in type 1 macrophage vs type 2 macrophage"
+title="Precalculated Example 1 (UPDOWN SIGNATURE)"
+reference="Menganito et al. 2020"
+url="https://www.ncbi.nlm.nih.gov/pubmed/26437641"
+caseType="Macrophages M1"
+referenceType="Macrophages M2"
+
