@@ -26,7 +26,7 @@ cat $1 | awk -F'\t' '
 	END { printf ";\n\n"}
 ';
 
-cat $1 | awk -F'\t' '
+cat $1 | grep -v -i -P '\tUnknown' | awk -F'\t' '
 	BEGIN {
 		printf "INSERT IGNORE INTO drug_moa (id, moa) VALUES"
 	}
