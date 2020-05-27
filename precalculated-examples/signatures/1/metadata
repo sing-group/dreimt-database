@@ -4,4 +4,5 @@ reference="Menganito et al. 2020"
 url="https://www.ncbi.nlm.nih.gov/pubmed/26437641"
 caseType="Macrophages M1"
 referenceType="Macrophages M2"
-
+drugPrioritizationResultId=1605e171-2bf8-4356-a2f1-64d41e6bd467
+signaturesComparisonResultId=968fd68c-af67-49f7-8bcf-22b45e2ac6e6

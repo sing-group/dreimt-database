@@ -43,6 +43,8 @@ function unsetMetadataVariables {
 	unset geneSetType
 	unset caseType
 	unset referenceType
+	unset drugPrioritizationResultId
+	unset signaturesComparisonResultId
 }
 
 function processSignatureExample {
@@ -55,8 +57,12 @@ function processSignatureExample {
 
 	cmapResultsFile="$signatureDirectory/results-cmap.tsv"
 	
-	if [ -f $cmapResultsFile ]; then 
-		uuid=$(uuidgen)
+	if [ -f $cmapResultsFile ]; then
+		if [ -z "$drugPrioritizationResultId" ]; then
+			uuid=$(uuidgen)
+		else
+			uuid=$drugPrioritizationResultId
+		fi
 		echo -e "-- CMAP result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/drug-prioritization/signature/$uuid"
@@ -82,8 +88,12 @@ function processSignatureExample {
 	jaccardResultsFile="$signatureDirectory/results-jaccard.tsv"
 	
 	if [ -f $jaccardResultsFile ]; then 
-		uuid=$(uuidgen)
-		echo -e "-- Jaccard result: $uuid\n"
+		if [ -z "$signaturesComparisonResultId" ]; then
+			uuid=$(uuidgen)
+		else
+			uuid=$signaturesComparisonResultId
+		fi
+		echo -e "\n-- Jaccard result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/signatures-comparison/$uuid"
 	
@@ -117,7 +127,11 @@ function processGenesetExample {
 	cmapResultsFile="$signatureDirectory/results-cmap.tsv"
 	
 	if [ -f $cmapResultsFile ]; then 
-		uuid=$(uuidgen)
+		if [ -z "$drugPrioritizationResultId" ]; then
+			uuid=$(uuidgen)
+		else
+			uuid=$drugPrioritizationResultId
+		fi
 		echo -e "\n-- CMAP result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/drug-prioritization/geneset/$uuid"
@@ -143,7 +157,11 @@ function processGenesetExample {
 	jaccardResultsFile="$signatureDirectory/results-jaccard.tsv"
 
 	if [ -f $jaccardResultsFile ]; then 
-		uuid=$(uuidgen)
+		if [ -z "$signaturesComparisonResultId" ]; then
+			uuid=$(uuidgen)
+		else
+			uuid=$signaturesComparisonResultId
+		fi
 		echo -e "\n-- Jaccard result: $uuid\n"
 		
 		resultReference="$BACKEND_URL/rest/api/results/signatures-comparison/$uuid"
