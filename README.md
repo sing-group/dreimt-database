@@ -175,20 +175,23 @@ Where `75` is the threshold value for filtering out those interactions with `|TA
 
 ## 2.12 Populate the database
 Finally, run the following command to populate the `dreimt` database, which must have been created previously:
+
 ```bash
+sudo mysql dreimt < generated-data/sql/fill_genes_universe.sql
 sudo mysql dreimt < generated-data/sql/fill_drug.sql
 sudo mysql dreimt < generated-data/sql/fill_article_metadata.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_updown_interactions.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_geneset_interactions.sql
-sudo mysql dreimt < generated-data/sql/fill_genes_universe.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_updown_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_signatures_geneset_genes.sql
 sudo mysql dreimt < generated-data/sql/fill_database_versions.sql
 sudo mysql dreimt < generated-data/sql/fill_precalculated_examples.sql
 sudo mysql dreimt < generated-data/sql/fill_dreimt_information.sql
 ```
-Or generate a compressed file containing all of them: `cat generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql generated-data/sql/fill_dreimt_information.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
+Or generate a compressed file containing all of them: `cat generated-data/sql/fill_genes_universe.sql generated-data/sql/fill_drug.sql generated-data/sql/fill_article_metadata.sql generated-data/sql/fill_signatures.sql generated-data/sql/fill_signatures_updown_interactions.sql generated-data/sql/fill_signatures_geneset_interactions.sql generated-data/sql/fill_signatures_updown_genes.sql generated-data/sql/fill_signatures_geneset_genes.sql generated-data/sql/fill_database_versions.sql generated-data/sql/fill_precalculated_examples.sql generated-data/sql/fill_dreimt_information.sql | gzip > generated-data/sql/fill_dreimt_db.sql.gz`.
+
+> **_NOTE:_**  The `fill_genes_universe.sql` file must be used in first place to guarantee that the universe genes are inserted at the beginning and avoid further errors due to duplicated gene identifiers.
 
 ## 2.13 Upload the SQL files to the SING static server
 
