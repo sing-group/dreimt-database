@@ -51,6 +51,7 @@
 			fi
 		</task>
 		<task id="task-1-1" after="task-0">
+            rm -rf ${workingDirectory}/${intermediateDirectory}
             mkdir -p ${workingDirectory}/${intermediateDirectory}
 		</task>
 		<task id="task-1-3-1" after="task-1-1" params="intermediateSignaturesFile signaturesFile">
@@ -132,7 +133,7 @@
             write.table(universe, paste0(Sys.getenv("intermediateDirectory"), "/", Sys.getenv("intermediateD1GeneUniverseFile")), sep = "\t", row.names=FALSE, quote=FALSE)
 			]]>
 		</task>
-        <task id="task-1-6" after="task-1-1" params="d1GeneUniverseFile gmtSignaturesFile">
+        <task id="task-1-6" after="task-1-1" params="gmtSignaturesFile">
 			<![CDATA[
 			setwd(Sys.getenv("workingDirectory"));
 			library(GSEABase, quietly = TRUE);
