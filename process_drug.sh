@@ -49,40 +49,8 @@ cat $1 | grep -v -i -P '\tUnknown' | awk -F'\t' '
 ';
 
 cat $1 | awk -F'\t' '
-	BEGIN { 
-		printf "\nINSERT IGNORE INTO genes (gene, universe) VALUES" 
-		PRINT_COMMA = 0;
-	}
-	NR>1 {
-		gsub(/^[[:space:]]+|[[:space:]]+$/, "", $11);
-		gsub("^NA$|NA,|,NA", "", $11);
-		genesCount = split($11, genes, ",");
-
-		if(NR>1 && genesCount > 0) {
-			if(PRINT_COMMA == 1) {
-				printf(",");
-				PRINT_COMMA = 0;
-			}
-		}
-
-		for(i=0; ++i <= genesCount;) {
-			if(genes[i] != "") {
-				gsub(/^[[:space:]]+|[[:space:]]+$/,"", genes[i]);
-				printf "\n  (\"%s\", \"F\")", genes[i];
-				if(i < genesCount) {
-					printf ",";
-				} else {
-					PRINT_COMMA = 1;
-				}
-			}
-		}
-	}
-	END { printf ";\n"}
-';
-
-cat $1 | awk -F'\t' '
 	BEGIN {
-		printf "\nINSERT IGNORE INTO drug_target_genes (id, gene) VALUES";
+		printf "\nINSERT INTO drug_target_genes (id, targetGene) VALUES";
 		PRINT_COMMA = 0;
 	}
 	NR>1 {
