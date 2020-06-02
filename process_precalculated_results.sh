@@ -3,7 +3,7 @@
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 DATA_DIR=$1
-BACKEND_URL="${2:-http://dreimt.sing-group.org/dreimt-backend}"
+BACKEND_URL="${2:-http://dreimt.org/dreimt-backend}"
 
 function insertWork {
 	resultType=$1
