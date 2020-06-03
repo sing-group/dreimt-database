@@ -104,6 +104,6 @@ processPrecalculatedResults $DEVEL_DB_DIR/intermediate/precalculated-examples/ge
 processPrecalculatedResults $DEVEL_DB_DIR/intermediate/precalculated-examples/genesets/3
 processPrecalculatedResults $DEVEL_DB_DIR/intermediate/precalculated-examples/signatures/1
 
-$DDB/process_precalculated_results.sh $DEVEL_DB_DIR/intermediate/precalculated-examples "http://localhost:8080/dreimt-backend" > $DEVEL_DB_DIR/sql/fill_precalculated_examples.sql
+$DDB/process_precalculated_results.sh $DEVEL_DB_DIR/intermediate/precalculated-examples > $DEVEL_DB_DIR/sql/fill_precalculated_examples.sql
 
 cat $DEVEL_DB_DIR/sql/fill_genes_universe.sql $DEVEL_DB_DIR/sql/fill_drug.sql $DEVEL_DB_DIR/sql/fill_article_metadata.sql $DEVEL_DB_DIR/sql/fill_signatures.sql $DEVEL_DB_DIR/sql/fill_signatures_updown_interactions.sql $DEVEL_DB_DIR/sql/fill_signatures_geneset_interactions.sql $DEVEL_DB_DIR/sql/fill_signatures_updown_genes.sql $DEVEL_DB_DIR/sql/fill_signatures_geneset_genes.sql $DEVEL_DB_DIR/sql/fill_precalculated_examples.sql $DEVEL_DB_DIR/sql/fill_dreimt_information.sql $DEVEL_DB_DIR/sql/fill_database_versions.sql > $DEVEL_DB_DIR/sql/fill_dreimt_db.sql
