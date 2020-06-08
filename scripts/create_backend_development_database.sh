@@ -7,7 +7,7 @@ fi
 
 DATABASE_DIR=$1
 DDB=$2
-DEVEL_DB_PRECALCULATED_EXAMPLES="$DDB/precalculated-examples"
+DEVEL_DB_PRECALCULATED_EXAMPLES="$DDB/../precalculated-examples"
 SIGNATURE_NAMES=$3
 
 DEVEL_DB_DIR="$DATABASE_DIR/generated-data/development_database"

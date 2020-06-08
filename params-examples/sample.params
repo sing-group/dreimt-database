@@ -1,0 +1,7 @@
+workingDirectory=/home/hlfernandez/Data/Collaborations/CNIO-Dreimt/Database/20200516/
+dreimtUtilsPath=/home/hlfernandez/Investigacion/Desarrollos/Git/cnio/dreimt-utils/
+dbZipName=v20200516.zip
+dreimtDatabaseScriptsPath=/home/hlfernandez/Investigacion/Desarrollos/Git/cnio/dreimt-database/
+tauThreshold=80
+dbVersionsDirectory=/home/hlfernandez/Data/Collaborations/CNIO-Dreimt/Database/
+backendProjectPath=/home/hlfernandez/Investigacion/Desarrollos/Git/backends/dreimt-backend/
