@@ -44,8 +44,12 @@
 	<tasks>
         <task id="task-0" params="dbZipName removeDatabaseZip">
 			if [ ! -d "${workingDirectory}/Inputs" ]; then
-				# wget http://static.sing-group.org/software/dreimt/database/sources/${dbZipName}
+				if [ ! -f ${workingDirectory}/${dbZipName} ] ; then
+					wget http://static.sing-group.org/software/dreimt/database/sources/${dbZipName} -O ${workingDirectory}/${dbZipName}
+				fi
+
 				unzip ${workingDirectory}/${dbZipName} -d ${workingDirectory}
+
 				if [ ! -z ${removeDatabaseZip} ]; then 
 					rm ${dbZipName}
 				fi
@@ -56,14 +60,14 @@
             mkdir -p ${workingDirectory}/${intermediateDirectory}
 		</task>
 		<task id="task-1-3-1" after="task-1-1" params="intermediateSignaturesFile signaturesFile">
-            if [[ ! -f ${workingDirectory}/${signaturesFile} ]] ; then
+			if [[ ! -f ${workingDirectory}/${signaturesFile} ]] ; then
                 echo "The file ${workingDirectory}/${signaturesFile} does not exist"
                 exit 1
-            fi
+			fi
 			awk '{ sub("\r$", ""); print }' ${workingDirectory}/${signaturesFile} > ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}
-            duplicatedSignatureNamesCount=$(cat ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} | awk -F'\t' 'NR>1{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' | sort | uniq -d | wc -l)
-            if [[ $duplicatedSignatureNamesCount -ne 0 ]] ; then
-                echo -e "There are $duplicatedSignatureNamesCount duplicated signature names in the file ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}"
+			duplicatedSignatureNamesCount=$(cat ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile} | awk -F'\t' 'NR>1{gsub("_UP$|_DN$|_sig$", "", $1); print $1}' | sort | uniq -d | wc -l)
+			if [[ $duplicatedSignatureNamesCount -ne 0 ]] ; then
+				echo -e "There are $duplicatedSignatureNamesCount duplicated signature names in the file ${workingDirectory}/${intermediateDirectory}/${intermediateSignaturesFile}"
 				exit 1
 			fi
 		</task>
