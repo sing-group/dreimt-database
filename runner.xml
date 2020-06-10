@@ -4,7 +4,7 @@
         envs=$(for param in $task_params; do echo -n "-e $param "; done)
         echo -n "$envs"
         echo $workingDirectory
-        docker run --rm -u $(id -u $(whoami)) $envs -v ${workingDirectory}:${workingDirectory} r-base R -e &quot;$(echo &quot;$task_code&quot; | tr -d '\t')&quot;
+        docker run --rm -u $(id -u $(whoami)) $envs -v ${workingDirectory}:${workingDirectory} r-base:3.6.0 R -e &quot;$(echo &quot;$task_code&quot; | tr -d '\t')&quot;
     </runner>
     <runner tasks="task-1-6">
         envs=$(for param in $task_params; do echo -n "-e $param "; done)
