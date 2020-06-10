@@ -50,5 +50,5 @@ compi run -pa /path/to/params -o -r runner.xml --single-task task-2-13-upload-sq
 ## 3.2 Create the backend development database
 
 ```bash
-compi run -pa /path/to/params -o --single-task task-3-development-database -- --developmentPrecalculatedExamples /path/to/Precalculated
+compi run -pa /path/to/params -o --single-task task-3-development-database
 ```
