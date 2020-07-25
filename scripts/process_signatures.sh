@@ -23,9 +23,9 @@ cat $1 | awk -F'\t' '
 			}
 
 			if($14 == "NA") {
-				printf "INSERT INTO signature (signatureName, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB, cellTypeA, cellSubTypeA, cellTypeB, cellSubTypeB) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23, $6, $7, $8, $9;
+				printf "INSERT INTO signature (signatureName, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB, cellTypeA, cellSubTypeA, cellTypeB, cellSubTypeB, cellTypeAOntologyId, cellSubTypeAOntologyId, cellTypeBOntologyId, cellSubTypeBOntologyId) VALUES (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23, $6, $7, $8, $9, $24, $25, $26, $27;
 			} else {
-				printf "INSERT INTO signature (signatureName, article_pubmedId, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB, cellTypeA, cellSubTypeA, cellTypeB, cellSubTypeB) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $14, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23, $6, $7, $8, $9;
+				printf "INSERT INTO signature (signatureName, article_pubmedId, sourceDb, sourceDbUrl, signatureType, experimentalDesign, organism, localisationA, localisationB, stateA, stateB, cellTypeA, cellSubTypeA, cellTypeB, cellSubTypeB, cellTypeAOntologyId, cellSubTypeAOntologyId, cellTypeBOntologyId, cellSubTypeBOntologyId) VALUES (\"%s\", %s, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n", $1, $14, $2, $3, dbSignatureType, dbExperimentalDesign, $5, $18, $19, $22, $23, $6, $7, $8, $9, $24, $25, $26, $27;
 			}
 
 			# Split disease column ($10) to insert each value in the corresponding table

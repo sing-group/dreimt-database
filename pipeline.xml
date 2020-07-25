@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 	<params>
 		<param name="workingDirectory" shortName="wd" global="true">The absolute path to the working directory where the database files will be created.</param>
 
@@ -14,6 +14,7 @@
 		<param name="dbGenesets" shortName="dbGs" defaultValue="Database/Dreimt_DB_GS_Annotated.rds">The relative path to the file containing the associations made for geneset signatures.</param>
         <param name="dbSignatures" shortName="dbSigs" defaultValue="Database/Dreimt_DB_SIG_Annotated.rds">The relative path to the file containing the associations made for signatures.</param>
 		<param name="drugsFile" shortName="dF" defaultValue="Inputs/sig_id_table_LINCS_short.tsv">The relative path to the file containing the drug annotation.</param>
+		<param name="drugTargetGenesFile" shortName="dtgF" defaultValue="Inputs/drug_target_genes.tsv">The relative path to the file containing the drug target genes annotation.</param>
 		<param name="signaturesFile" shortName="sF" defaultValue="Inputs/Dreimt_curation_DB.tsv">The relative path to the file containing the signature annotation.</param>
 		<param name="d1GeneUniverseFile" shortName="d1" defaultValue="Inputs/D1geneUniverse.rds">The relative path to the file containing the genes universe.</param>
 		<param name="gmtSignaturesFile" shortName="gS" defaultValue="Inputs/Dreimt_Signatures_clean.gmt">The relative path to the GMT signatures file.</param>
@@ -30,6 +31,7 @@
 		<param name="intermediateD1GeneUniverseFile" shortName="id1" defaultValue="D1geneUniverse.tsv">The name of the intermediate universe genes file</param>
 		<param name="intermediateDbGenesets" shortName="idbGs" defaultValue="Dreimt_DB_GS_Annotated.tsv">The name of the intermediate file containing the associations made for genesets.</param>
 		<param name="intermediateDbSignatures" shortName="idbSigs" defaultValue="Dreimt_DB_SIG_Annotated.tsv">The name of the intermediate file containing the associations made for signatures.</param>
+		<param name="drugProfilesCountFile" shortName="dpcF" defaultValue="drug_profiles_count.tsv">The name of the intermediate file containing the drug name profiles count.</param>
 
 		<!-- Final SQL files -->
 		<param name="sqlDirectory" shortName="sqlD" defaultValue="generated-data/sql" global="true">The relative path to the directory to create the SQL files.</param>
@@ -157,7 +159,12 @@
 			quit(status = status);
 			]]>
 		</task>
-		<task id="task-2-1-sql-init" after="task-1-3-5, task-1-4, task-1-5, task-1-6" params="dbVersionsFile dbVersionsDirectory">
+        <task id="task-1-7" after="task-1-1" params="intermediateDirectory drugsFile drugProfilesCountFile">
+			<![CDATA[
+			cat ${workingDirectory}/${drugsFile}  | awk -F'\t' '{print $3}' | sort | uniq -c | awk -F' ' '{print $2 "\t" $1}' > ${workingDirectory}/${intermediateDirectory}/${drugProfilesCountFile}
+			]]>
+		</task>
+		<task id="task-2-1-sql-init" after="task-1-3-5, task-1-4, task-1-5, task-1-6, task-1-7" params="dbVersionsFile dbVersionsDirectory">
 			rm -rf ${workingDirectory}/${sqlDirectory}
 			mkdir ${workingDirectory}/${sqlDirectory}
 			rm -f ${workingDirectory}/${dbVersionsFile}
@@ -167,8 +174,10 @@
 				wget http://static.sing-group.org/software/dreimt/database/sources/database-versions.txt -O ${workingDirectory}/${dbVersionsFile}
 			fi
 		</task>
-		<task id="task-2-2" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath drugsFile">
+		<task id="task-2-2" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath drugsFile drugTargetGenesFile drugProfilesCountFile">
 			${dreimtDatabaseScriptsPath}/process_drug.sh ${workingDirectory}/${drugsFile} > ${workingDirectory}/${sqlDirectory}/fill_drug.sql
+			${dreimtDatabaseScriptsPath}/process_drug_target_genes.sh ${workingDirectory}/${drugTargetGenesFile} >> ${workingDirectory}/${sqlDirectory}/fill_drug.sql
+			${dreimtDatabaseScriptsPath}/process_drug_profiles_count.sh ${workingDirectory}/${intermediateDirectory}/${drugProfilesCountFile} >> ${workingDirectory}/${sqlDirectory}/fill_drug.sql
 		</task>
 		<task id="task-2-3" after="task-2-1-sql-init" params="dreimtDatabaseScriptsPath pmidsTsvFile">
 			${dreimtDatabaseScriptsPath}/process_article_metadata.sh ${workingDirectory}/${intermediateDirectory}/${pmidsTsvFile} > ${workingDirectory}/${sqlDirectory}/fill_article_metadata.sql
@@ -233,6 +242,7 @@
 		<task-description id="task-1-4">Processes the main database files containing the drug associations.</task-description>
 		<task-description id="task-1-5">Processes the D1 genes universe file.</task-description>
 		<task-description id="task-1-6">Checks that the up and down genesets in the `Dreimt_Signatures_clean.gmt` file do not contain common genes.</task-description>
+		<task-description id="task-1-7">Processes the drug annotation file in order to obtain the intermediate file containing the drug name profiles count.</task-description>
 		<task-description id="task-2-1-sql-init">Creates a directory to store the generated SQL files from the intermediate files.</task-description>
 		<task-description id="task-2-2">Processes the drug table.</task-description>
 		<task-description id="task-2-3">Processes the article_metadata table.</task-description>

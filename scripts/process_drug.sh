@@ -2,7 +2,7 @@
 
 cat $1 | awk -F'\t' '
 	BEGIN { 
-		printf "INSERT INTO drug (id, commonName, sourceDb, sourceName, status, dss) VALUES"
+		printf "INSERT INTO drug (id, commonName, sourceDb, sourceName, status, dss, pubChemId) VALUES"
 	}
 	NR>2 { 
 		printf ","; 
@@ -17,10 +17,15 @@ cat $1 | awk -F'\t' '
 			status = 2;
 		}
 
+		pubChemId = $13;
+		if(pubChemId == "NA") {
+			pubChemId = "";
+		}
+		
 		if($12 == "NA") {
-			printf "\n  (%s, \"%s\", \"%s\", \"%s\", %s, NULL)", $1, $3, $4, $5, status;
+			printf "\n  (%s, \"%s\", \"%s\", \"%s\", %s, NULL, \"%s\")", $1, $3, $4, $5, status, pubChemId;
 		} else {
-			printf "\n  (%s, \"%s\", \"%s\", \"%s\", %s, %s)", $1, $3, $4, $5, status, $12;
+			printf "\n  (%s, \"%s\", \"%s\", \"%s\", %s, %s, \"%s\")", $1, $3, $4, $5, status, $12, pubChemId;
 		}
 	}
 	END { printf ";\n\n"}
@@ -41,38 +46,6 @@ cat $1 | grep -v -i -P '\tUnknown' | awk -F'\t' '
 				printf "\n  (%s, \"%s\")", $1, moa[i];
 				if(i < moaCount) {
 					printf ",";
-				}
-			}
-		}
-	}
-	END { printf ";\n"}
-';
-
-cat $1 | awk -F'\t' '
-	BEGIN {
-		printf "\nINSERT INTO drug_target_genes (id, targetGene) VALUES";
-		PRINT_COMMA = 0;
-	}
-	NR>1 {
-		gsub(/^[[:space:]]+|[[:space:]]+$/, "", $11);
-		gsub("^NA$|NA,|,NA", "", $11);
-		genesCount = split($11, genes, ",");
-
-		if(NR>1 && genesCount > 0) {
-			if(PRINT_COMMA == 1) {
-				printf(",");
-				PRINT_COMMA = 0;
-			}
-		}
-
-		for(i=0; ++i <= genesCount;) {
-			if(genes[i] != "") {
-				gsub(/^[[:space:]]+|[[:space:]]+$/,"", genes[i]);
-				printf "\n  (%s, \"%s\")", $1, genes[i];
-				if(i < genesCount) {
-					printf ",";
-				} else {
-					PRINT_COMMA = 1;
 				}
 			}
 		}

@@ -84,6 +84,14 @@ universe <- readRDS("Inputs/D1geneUniverse.rds")
 write.table(universe, "generated-data/intermediate/D1geneUniverse.tsv", sep = "\t", row.names=FALSE, quote=FALSE)
 ```
 
+## 1.6 Obtain drug profiles count
+
+To obtain the drug profiles count (i.e. the count of drug common name appearances in the `sig_id_table_LINCS_short.tsv` file), run the following command:
+
+```bash
+cat Inputs/sig_id_table_LINCS_short.tsv  | awk -F'\t' '{print $3}' | sort | uniq -c | awk -F' ' '{print $2 "\t" $1}' > generated-data/intermediate/drug_profiles_count.tsv
+```
+
 # 2. SQL generation scripts
 
 ## 2.1 Create a directory to store the generated SQL files from the intermediate files
@@ -94,6 +102,18 @@ Run the `process_drug.sh` script in order to process the `Inputs/sig_id_table_LI
 
 ```bash
 process_drug.sh Inputs/sig_id_table_LINCS_short.tsv > generated-data/sql/fill_drug.sql
+```
+
+Also, run the `process_drug_target_genes.sh` script in order to process the `Inputs/drug_target_genes.tsv` file and obtain the MySQL `INSERT` data queries (which are appended to the same `generated-data/sql/fill_drug.sql` file):
+
+```bash
+process_drug_target_genes.sh Inputs/drug_target_genes.tsv >> generated-data/sql/fill_drug.sql
+```
+
+And finally, run the `process_drug_profiles_count.sh` to process the `generated-data/intermediate/drug_profiles_count.tsv` file and obtain the MySQL `UPDATE` statements (which are appended to the same `generated-data/sql/fill_drug.sql` file):
+
+```bash
+process_drug_profiles_count.sh generated-data/intermediate/drug_profiles_count.tsv >> generated-data/sql/fill_drug.sql
 ```
 
 ## 2.3 Table `article_metadata`

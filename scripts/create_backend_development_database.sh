@@ -20,6 +20,8 @@ mkdir -p $DEVEL_DB_DIR
 mkdir -p $DEVEL_DB_DIR/sql $DEVEL_DB_DIR/intermediate
 
 $DDB/process_drug.sh $DATABASE_DIR/Inputs/sig_id_table_LINCS_short.tsv > $DEVEL_DB_DIR/sql/fill_drug.sql
+$DDB/process_drug_target_genes.sh $DATABASE_DIR/Inputs/drug_target_genes.tsv >> $DEVEL_DB_DIR/sql/fill_drug.sql
+$DDB/process_drug_profiles_count.sh $DATABASE_DIR/generated-data/intermediate/drug_profiles_count.tsv >> $DEVEL_DB_DIR/sql/fill_drug.sql
 
 FILTERED_PMIDS=$(cat $DATABASE_DIR/generated-data/intermediate/signatures_step_1.tsv | grep -E "${SIGNATURE_NAMES}" | awk -F'\t' '{print $14}' | paste -sd "|")
 echo "Header" > $DEVEL_DB_DIR/intermediate/filtered_pmids.tsv
