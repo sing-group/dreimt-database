@@ -17,7 +17,7 @@ Before running the pipeline, clone the [DREIMT Utils](https://github.com/sing-gr
 Use the following command to run the `pipeline.xml` file with Compi (v1.3.0 or higher), indicating the path to a params file for the database to be created:
 
 ```bash
-compi run -pa /path/to/params -o -r runner.xml 
+compi run -pa /path/to/params -o -r runners-examples/runner.xml
 ```
 
 An example of a params file is:
@@ -44,7 +44,7 @@ Where:
 ## 3.1 Upload the SQL files to the SING static server
 
 ```bash
-compi run -pa /path/to/params -o -r runner.xml --single-task task-2-13-upload-sql -- --singUserName <your_SING_static_username>
+compi run -pa /path/to/params -o -r runners-examples/runner.xml --single-task task-2-13-upload-sql -- --singUserName <your_SING_static_username>
 ```
 
 ## 3.2 Create the backend development database
